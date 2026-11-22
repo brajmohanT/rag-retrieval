@@ -41,6 +41,22 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - Moved `scripts/inspect_query.py` and its CSS into `src/evidence_atlas/data/`; behavior unchanged. Dataset audit output is byte-identical; the viewer differs only in its stylesheet path.
 - Added `configs/vidore_hr.yaml` (dataset repo, pinned revision, paths) and `evidence_atlas.config.load_config`.
 - Added `.env.example`, `README.md`, and a `.gitignore` covering data, artifacts, `.env`, caches, and local agent tooling.
-- Initialized Git; nothing committed yet.
+- Initialized Git (local identity only) and made the first commit.
 - 8 tests pass (`uv run pytest`).
 - Not yet done: normalized `Page`/`Query`/`Relevance` records from step 3.
+
+## Typed dataset records
+
+- Added `evidence_atlas.data.records`: `Document`, `Page`, `Query`, `Relevance`, `Box`, and `load_dataset` (English by default; loads in about 0.1 s without page images).
+- The audit now reuses the same `load_rows`.
+- Verified on real data: 14 documents, 1,110 pages, 318 English questions, every qrel resolves to a page.
+- Findings: judged pages per English question range from 1 to 30 (median 3); 125 of 318 have no single complete-answer (grade 2) page. No field links translations to base questions; label matching links 1,580 of 1,590 uniquely.
+- 12 tests pass.
+
+## Evaluation protocol (step 4)
+
+- Froze 107 dev and 211 held-out English questions, stratified by question type, in `configs/vidore_hr_partitions.json`; regeneration is refused.
+- Implemented Hit@k, Recall@k, Complete@k, MRR@10, nDCG@10 (`evaluation/metrics.py`), with bootstrap intervals, type breakdowns, and paired comparisons (`evaluation/evaluate.py`).
+- Hand-calculated tests; 21 tests pass.
+- Sanity check on held-out: a perfect ranking scores nDCG@10 1.000; random scores 0.003. Perfect-ranking ceilings: Recall@5 0.845, Complete@5 0.782.
+- Protocol written to `docs/EVALUATION_PROTOCOL.md`. Run format with cost and latency is deferred to step 5.

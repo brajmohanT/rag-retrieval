@@ -14,21 +14,14 @@ from pathlib import Path
 import sys
 from urllib.parse import quote
 
-import pyarrow as pa
 import pyarrow.parquet as pq
 from PIL import Image
 from pypdf import PdfReader
 
 from evidence_atlas.config import load_config
+from evidence_atlas.data.records import load_rows
 
 CSS = Path(__file__).with_name("inspection.css")
-
-
-def load_rows(root, config, columns=None):
-    paths = sorted((root / config).glob("*.parquet"))
-    if not paths:
-        raise ValueError(f"No Parquet files in {root / config}")
-    return pa.concat_tables([pq.read_table(p, columns=columns) for p in paths]).to_pylist()
 
 
 def duplicate_values(values):

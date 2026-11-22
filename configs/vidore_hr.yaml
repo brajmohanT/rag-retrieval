@@ -5,3 +5,10 @@ dataset:
   data_dir: data/vidore_v3_hr
 
 artifacts_dir: artifacts
+
+evaluation:
+  partitions_file: configs/vidore_hr_partitions.json
+  dev_fraction: 0.33
+  seed: 2026
+  ks: [5, 10]
+  bootstrap_samples: 1000

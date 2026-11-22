@@ -94,19 +94,25 @@ rag_01/
 
 ### 3. Audit and normalize the dataset — done
 
-Completed audit: see `PROGRESS.md` and `artifacts/dataset_audit.json`. Remaining work, done during step 2: expose stable `Page`, `Query`, and `Relevance` records from the package, preserving original IDs.
+Audit: see `PROGRESS.md` and `artifacts/dataset_audit.json`. Typed records live in `evidence_atlas.data.records`, keyed by the dataset's own IDs:
 
 ```text
-Page:       page_id, corpus_id, document_id, page_number, image_path, markdown, license
-Query:      query_id, language, question, reference_answer, query_types, content_type
-Relevance:  query_id, page_id, relevance_grade, content_type, boxes
+Document:   doc_id, file_name, url, doc_type, year, visual_types, license
+Page:       page_id (= corpus_id), doc_id, page_number (zero-based), markdown
+Query:      query_id, language, text, answer, query_types, query_format, content_type, source_type
+Relevance:  query_id, page_id, grade, content_type, boxes
 ```
 
-### 4. Lock the evaluation protocol
+The dataset has no field linking a translation to its English base question. Matching on qrels, query type, format, and source type links 1,580 of 1,590 translations uniquely; the rest are ambiguous between two English questions. Handle this in step 4.
+
+### 4. Lock the evaluation protocol — done
+
+Frozen protocol: [EVALUATION_PROTOCOL.md](EVALUATION_PROTOCOL.md). The original requirements follow.
+
 
 Do this before tuning retrieval.
 
-- Freeze development and held-out question IDs; keep translations of a base question in the same partition.
+- Freeze development and held-out question IDs. If translations are used, keep them with their base question; English questions whose translations cannot be told apart go in the same partition.
 - Use the full 1,110-page corpus as the candidate pool.
 - Fix retrieval budgets: top 5 and top 10.
 - Define graded-relevance handling: grade 2 is a complete answer; grade 1 is required evidence needing other pages.
