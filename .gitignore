@@ -1,0 +1,15 @@
+# Downloaded datasets and generated outputs (indexes, rankings, viewers)
+/data/
+/artifacts/
+
+# Secrets: API keys live only in .env
+.env
+
+# Python and tooling caches
+.venv/
+__pycache__/
+.pytest_cache/
+
+# Local agent tooling, not part of the project
+/.agents/
+/.hallmark/

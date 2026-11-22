@@ -1,0 +1,7 @@
+# Fixed corpus for the first release. Paths are relative to the repository root.
+dataset:
+  repo_id: vidore/vidore_v3_hr
+  revision: 0cdf0979f2c5a0fd3e335e6373b9da48a9fe3bc3
+  data_dir: data/vidore_v3_hr
+
+artifacts_dir: artifacts

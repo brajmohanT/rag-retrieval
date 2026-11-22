@@ -1,0 +1,25 @@
+[project]
+name = "evidence-atlas"
+version = "0.1.0"
+description = "Compare text, visual, and hybrid retrieval on ViDoRe V3 HR and show the evidence behind each answer."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pillow==12.1.1",
+    "pyarrow==23.0.1",
+    "pypdf==6.7.5",
+    "pyyaml>=6.0",
+]
+
+[project.scripts]
+atlas-inspect = "evidence_atlas.data.inspection:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
