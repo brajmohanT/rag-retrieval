@@ -63,3 +63,12 @@ def log_call(provider, model, kind, items, seconds, cost_usd, usage=None):
               "cost_usd": cost_usd, "usage": usage}
     with open(CALL_LOG, "a") as f:
         f.write(json.dumps(record) + "\n")
+
+
+def logged_calls(model, kind):
+    """Every logged call for a model and kind. The cache means each input is paid for once,
+    so these sum to the true cost of everything encoded so far, even after cached reruns."""
+    if not CALL_LOG.exists():
+        return []
+    calls = [json.loads(line) for line in CALL_LOG.read_text().splitlines()]
+    return [c for c in calls if c["model"] == model and c["kind"] == kind]

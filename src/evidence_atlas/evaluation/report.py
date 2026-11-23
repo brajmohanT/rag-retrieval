@@ -88,7 +88,9 @@ def report_run(run_dir, data, partitions, ks=(5, 10), samples=1000):
         f"Method: `{meta['method']}`. Settings: `{json.dumps(meta.get('settings', {}))}`.",
         f"Dataset revision `{meta['dataset_revision'][:12]}`; created {meta['created_at']}.",
         f"Index build: {meta.get('index_seconds', 0):.2f} s. Query latency: p50 {latency.get('p50_ms', 0):.1f} ms, "
-        f"p95 {latency.get('p95_ms', 0):.1f} ms. Cost: ${meta.get('cost_usd', 0):.2f}.", "",
+        f"p95 {latency.get('p95_ms', 0):.1f} ms. Cost: ${meta.get('cost_usd', 0):.4f}"
+        + (f" (index ${meta['index_cost_usd']:.4f}; queries ${meta['query_cost_per_1k_usd']:.4f} per 1,000)"
+           if "index_cost_usd" in meta else "") + ".", "",
         "## Scores", "",
         f"Mean with 95% bootstrap interval. Dev n={len(partitions['dev'])}, held-out n={len(partitions['heldout'])}. "
         "Ceiling: a perfect ranking on held-out.", "",

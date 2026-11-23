@@ -77,3 +77,13 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - Smoke test (query 0, page 485): ColQwen3 returns 747 × 320 vectors per page and one 320-d vector per query token; Voyage multimodal 3.5 returns 1,024-d vectors; DeepSeek V4.1 Flash chat works. First run cost $0.0029; the second run made no calls.
 - Observed: Superlinked took 16 s for 2 pages on first use, so full-corpus encoding needs concurrent requests. ColQwen3 vectors take about 1 MB per page in float32.
 - 34 tests pass, with fake HTTP responses (no network or keys).
+
+## Dense text retrieval (step 7)
+
+- Added `retrieval/dense.py` (exact cosine search) and `atlas-dense`: Qwen3-Embedding-8B via OpenRouter, one vector per page's Markdown, instruction-prefixed questions. The 12 pages without text are not embedded.
+- Cost: $0.0114 to embed 1,098 pages; about $0.0005 per 1,000 questions. Question encoding p50 3.3 s through the API (search 0.3 ms); too slow for live custom questions as is.
+- Held-out nDCG@10 0.520 [0.478–0.560] vs BM25 0.492. Overall difference +0.028, 95% CI [−0.017, +0.071]: not significant.
+- Tables: nDCG@10 0.536 vs 0.312, difference +0.224 [+0.127, +0.318], significant. Numerical questions: +0.119 [+0.012, +0.221], significant.
+- The methods are complementary: dense better on 88 held-out questions, BM25 on 91. Taking the better of the two per question would give nDCG@10 0.623, the headroom for fusion.
+- Dev example Q208 (France table): judged page 403 ranks 3rd with dense; BM25 never retrieved it.
+- 39 tests pass.

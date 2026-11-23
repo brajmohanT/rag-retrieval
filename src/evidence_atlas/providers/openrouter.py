@@ -28,18 +28,24 @@ def content(item):
     return {"content": [{"type": "image_url", "image_url": {"url": url}}]}
 
 
-def embed(items, model=VOYAGE_MULTIMODAL, cache=None, batch_size=8):
-    """One float32 vector per item (text or PNG bytes), in input order."""
+def embed(items, model=VOYAGE_MULTIMODAL, kind="document", cache=None, batch_size=8):
+    """One float32 vector per item (text or PNG bytes), in input order.
+
+    kind ("query" or "document") labels the call log, so costs can be read back per kind.
+    """
     cache = cache or Cache()
     keys = [Cache.key(provider="openrouter", model=model, input=digest(item)) for item in items]
     results = [cache.get_array(key) for key in keys]
     missing = [i for i, result in enumerate(results) if result is None]
     for start in range(0, len(missing), batch_size):
         batch = missing[start:start + batch_size]
-        payload = {"model": model, "input": [content(items[i]) for i in batch], "encoding_format": "float"}
+        inputs = [items[i] for i in batch]
+        if not all(isinstance(item, str) for item in inputs):
+            inputs = [content(item) for item in inputs]
+        payload = {"model": model, "input": inputs, "encoding_format": "float"}
         response, seconds = post_json(f"{BASE_URL}/embeddings", payload, headers())
         usage = response.get("usage", {})
-        log_call("openrouter", model, "embedding", len(batch), seconds, usage.get("cost"), usage)
+        log_call("openrouter", model, kind, len(batch), seconds, usage.get("cost"), usage)
         for row in sorted(response["data"], key=lambda row: row["index"]):
             i = batch[row["index"]]
             results[i] = np.asarray(row["embedding"], dtype=np.float32)

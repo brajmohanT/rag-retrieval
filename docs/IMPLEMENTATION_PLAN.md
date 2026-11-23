@@ -158,7 +158,10 @@ A thin client per provider plus a shared response cache.
 
 **Deliverable:** one cached test call per provider, with cost recorded.
 
-### 7. Add dense text retrieval
+### 7. Add dense text retrieval — done
+
+Qwen3-Embedding-8B via OpenRouter, one vector per page (`atlas-dense`); results in `PROGRESS.md`. Original requirements follow.
+
 
 1. Choose one text embedding API.
 2. Embed page Markdown (or page-linked chunks with a declared page-score aggregation rule).

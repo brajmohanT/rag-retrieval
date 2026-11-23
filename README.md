@@ -21,6 +21,7 @@ The dataset (~495 MB) lives in `data/vidore_v3_hr/` and is not in Git.
 uv run pytest                        # run tests
 uv run atlas-inspect --query-id 0    # audit the dataset; write an evidence viewer to artifacts/inspection/0/
 uv run atlas-bm25                    # run BM25 on all questions; report in artifacts/runs/bm25/
+uv run atlas-dense                   # dense text retrieval via API (cached after first run)
 uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 uv run atlas-smoke                   # one cached call to each API provider (needs .env keys)
 ```
