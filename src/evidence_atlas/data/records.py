@@ -76,6 +76,15 @@ def load_rows(root, config, columns=None):
     return pa.concat_tables([pq.read_table(p, columns=columns) for p in paths]).to_pylist()
 
 
+def load_page_images(root, page_ids):
+    """page_id -> PNG bytes, reading only the requested rows."""
+    images = {}
+    for path in sorted((Path(root) / "corpus").glob("*.parquet")):
+        table = pq.read_table(path, columns=["corpus_id", "image"], filters=[("corpus_id", "in", list(page_ids))])
+        images.update({row["corpus_id"]: row["image"]["bytes"] for row in table.to_pylist()})
+    return images
+
+
 def load_dataset(root, languages=("english",)):
     """Load records; keep only queries (and their qrels) in the given languages."""
     documents = {

@@ -143,7 +143,10 @@ artifacts/runs/<name>/
     report.md       written by atlas-eval
 ```
 
-### 6. Build the API provider layer
+### 6. Build the API provider layer — done
+
+Code in `src/evidence_atlas/providers/`; check with `uv run atlas-smoke`. Original requirements follow.
+
 
 A thin client per provider plus a shared response cache.
 

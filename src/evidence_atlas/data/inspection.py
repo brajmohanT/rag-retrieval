@@ -19,7 +19,7 @@ from PIL import Image
 from pypdf import PdfReader
 
 from evidence_atlas.config import load_config
-from evidence_atlas.data.records import load_rows
+from evidence_atlas.data.records import load_page_images, load_rows
 
 CSS = Path(__file__).with_name("inspection.css")
 
@@ -142,10 +142,7 @@ def render_view(root, output, query, qrels, pages, documents, report):
     relevant = sorted((r for r in qrels if r["query_id"] == query["query_id"]),
                       key=lambda r: (-r["score"], r["corpus_id"]))
     ids = [r["corpus_id"] for r in relevant]
-    images = {}
-    for path in sorted((root / "corpus").glob("*.parquet")):
-        table = pq.read_table(path, columns=["corpus_id", "image"], filters=[("corpus_id", "in", ids)])
-        images.update({r["corpus_id"]: r["image"]["bytes"] for r in table.to_pylist()})
+    images = load_page_images(root, ids)
     sections = []
     for r in relevant:
         p = page_by_id[r["corpus_id"]]

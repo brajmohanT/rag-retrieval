@@ -69,3 +69,11 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - Index build 2.7 s; query p50 0.6 ms, p95 0.9 ms; cost $0.
 - 14 of 107 dev questions have no judged page in the top 10. Example: Q208 (France's 2020 national employment rate) fails because the answer table writes "FR" and "Nat.", never "France" or "national".
 - 27 tests pass.
+
+## API provider layer (step 6)
+
+- Added `providers/`: `http.py` (keys from `.env`, retries with backoff, call log at `artifacts/api_calls.jsonl`), `cache.py` (per-item disk cache keyed by provider, model, settings, and input hash), `superlinked.py` (ColQwen3 multi-vector encode), `openrouter.py` (embeddings and chat), and the `atlas-smoke` command.
+- Shared `load_page_images` in `data/records.py`; the evidence viewer now uses it.
+- Smoke test (query 0, page 485): ColQwen3 returns 747 × 320 vectors per page and one 320-d vector per query token; Voyage multimodal 3.5 returns 1,024-d vectors; DeepSeek V4.1 Flash chat works. First run cost $0.0029; the second run made no calls.
+- Observed: Superlinked took 16 s for 2 pages on first use, so full-corpus encoding needs concurrent requests. ColQwen3 vectors take about 1 MB per page in float32.
+- 34 tests pass, with fake HTTP responses (no network or keys).
