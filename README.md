@@ -24,6 +24,7 @@ uv run atlas-bm25                    # run BM25 on all questions; report in arti
 uv run atlas-dense                   # dense text retrieval via API (cached after first run)
 uv run atlas-visual                  # visual retrieval from page images: voyage, colqwen3, or both
 uv run atlas-fusion                  # tune rank fusion on dev, evaluate on held-out (no API cost)
+uv run atlas-rerank cohere           # rerank the fusion shortlist on dev; --partition all for the final run
 uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 uv run atlas-smoke                   # one cached call to each API provider (needs .env keys)
 ```

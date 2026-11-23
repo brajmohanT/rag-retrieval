@@ -15,6 +15,8 @@ from evidence_atlas.providers.http import api_key, in_parallel, log_call, post_j
 
 BASE_URL = "https://api.superlinked.com/v1/encode/"
 COLQWEN3 = "TomoroAI/tomoro-colqwen3-embed-4b:compact"
+VL_RERANKER = "Qwen/Qwen3-VL-Reranker-2B"
+SCORE_URL = "https://api.superlinked.com/v1/score/"
 USD_PER_CREDIT = 0.00001
 
 
@@ -51,3 +53,31 @@ def request(model, items, is_query):
     log_call("superlinked", model, "query" if is_query else "document", len(items), seconds,
              credits * USD_PER_CREDIT, usage)
     return [np.asarray(item["multivector"]["values"], dtype=np.float32) for item in response["items"]]
+
+
+def rerank(query, images, model=VL_RERANKER, cache=None, batch_size=4):
+    """Relevance score for each (query, PNG page) pair, in input order. Pairs are cached one by one.
+
+    Pages go `batch_size` per request: full-size PNGs are ~0.5 MB each in base64 and the
+    endpoint rejects large bodies (HTTP 413). Each pair is scored independently, so
+    splitting a shortlist across requests does not change its scores.
+    """
+    cache = cache or Cache()
+    keys = [Cache.key(provider="superlinked", model=model, query=digest(query), input=digest(image)) for image in images]
+    scores = [cache.get_json(key) for key in keys]
+    missing = [i for i, score in enumerate(scores) if score is None]
+    headers = {"Authorization": f"Bearer {api_key('SUPERLINKED_API_KEY')}", "Accept": "application/json"}
+    for start in range(0, len(missing), batch_size):
+        batch = missing[start:start + batch_size]
+        payload = {"query": {"text": query},
+                   "items": [{"id": str(i), "images": [{"data": base64.b64encode(images[i]).decode(), "format": "png"}]}
+                             for i in batch]}
+        response, seconds = post_json(SCORE_URL + quote(model, safe=""), payload, headers)
+        usage = response.get("usage", {})
+        credits = float(usage.get("credits_charged_decimal", usage.get("credits_charged", 0)))
+        log_call("superlinked", model, "rerank", len(batch), seconds, credits * USD_PER_CREDIT, usage)
+        for row in response["scores"]:
+            i = int(row["item_id"])
+            scores[i] = row["score"]
+            cache.put_json(keys[i], row["score"])
+    return scores

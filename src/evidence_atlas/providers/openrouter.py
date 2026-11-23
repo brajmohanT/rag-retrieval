@@ -55,6 +55,24 @@ def embed(items, model=VOYAGE_MULTIMODAL, kind="document", cache=None, batch_siz
     return results
 
 
+def rerank(query, documents, model, cache=None):
+    """Relevance score for each (query, text document) pair, in input order. Pairs are cached one by one."""
+    cache = cache or Cache()
+    keys = [Cache.key(provider="openrouter", model=model, query=digest(query), input=digest(d)) for d in documents]
+    scores = [cache.get_json(key) for key in keys]
+    missing = [i for i, score in enumerate(scores) if score is None]
+    if missing:
+        payload = {"model": model, "query": query, "documents": [documents[i] for i in missing]}
+        response, seconds = post_json(f"{BASE_URL}/rerank", payload, headers())
+        usage = response.get("usage", {})
+        log_call("openrouter", model, "rerank", len(missing), seconds, usage.get("cost"), usage)
+        for row in response["results"]:
+            i = missing[row["index"]]
+            scores[i] = row["relevance_score"]
+            cache.put_json(keys[i], row["relevance_score"])
+    return scores
+
+
 def chat(messages, model=DEEPSEEK_FLASH, cache=None, **params):
     """{"text", "usage"} for one chat completion. Cached, so reruns with identical input are free."""
     cache = cache or Cache()

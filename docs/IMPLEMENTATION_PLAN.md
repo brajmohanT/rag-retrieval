@@ -187,7 +187,10 @@ Record image resolution, model and date, vector precision, embedding cost, and s
 
 **Deliverable:** text-versus-visual comparison.
 
-### 9. Add fusion and reranking
+### 9. Add fusion and reranking — done
+
+RRF fusion (`atlas-fusion`) and reranking (`atlas-rerank`); final comparison table in `PROGRESS.md`. Original requirements follow.
+
 
 - Fuse text and visual rankings with RRF; expose the text/visual weight as a setting.
 - Add an optional reranking API over the fused top candidates.

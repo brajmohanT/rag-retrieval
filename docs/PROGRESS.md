@@ -110,3 +110,32 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - Shortlist quality on held-out (fusion): Recall@20 0.802, Recall@50 0.893; Complete@20 0.701, Complete@50 0.768.
 - Fusion cost and latency: the sum of its members' costs; latency is the slowest member's (dense text, 3.3 s via API).
 - 46 tests pass.
+
+## Reranking on dev (step 9, part 2)
+
+- Added `retrieval/rerank.py`, rerank calls in both provider clients (pairs cached one by one; image shortlists sent 4 pages per request after an HTTP 413 at 20), and `atlas-rerank` (dev only by default).
+- Each reranker re-sorts the top 20 fusion pages per question. Dev (n=107), fusion baseline nDCG@10 0.617, Complete@5 0.589:
+  - Cohere Rerank 5 Pro on page text: nDCG@10 0.726 (+0.108 [+0.068, +0.149], significant); Complete@5 0.682 (+0.093 [+0.047, +0.150], significant). About $0.82 per 1,000 questions; request p50 1.2 s.
+  - Qwen3-Reranker-8B on page text: nDCG@10 0.660 (+0.042 [−0.002, +0.089], not significant). About $3.91 per 1,000 questions; p50 1.9 s.
+  - Qwen3-VL-Reranker-2B on page images: nDCG@10 0.646 (+0.029 [−0.012, +0.069], not significant); Complete@5 unchanged. About $7.43 per 1,000 questions; p50 22.6 s per 4-page request.
+- Held-out not yet evaluated for any reranker.
+- 50 tests pass.
+- Shortlist depth for Cohere tuned on dev: depth 10 nDCG@10 0.683, 20 → 0.726, 50 → 0.728 (Complete@5 0.645, 0.682, 0.701). Frozen at 50.
+
+## Final retrieval comparison (step 9 complete)
+
+Held-out (n=211), each method frozen before held-out evaluation:
+
+| Method | nDCG@10 | MRR@10 | Hit@5 | Complete@5 | Complete@10 | Table nDCG | Chart nDCG | Index cost | $/1k questions | p50 latency |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BM25 | 0.492 | 0.604 | 0.782 | 0.441 | 0.531 | 0.312 | 0.452 | $0 | $0 | 1 ms |
+| Dense text (Qwen3-Embedding-8B) | 0.520 | 0.637 | 0.815 | 0.469 | 0.555 | 0.536 | 0.516 | $0.01 | $0.001 | 3.3 s |
+| Voyage multimodal 3.5 (image) | 0.592 | 0.709 | 0.891 | 0.531 | 0.607 | 0.577 | 0.591 | $1.33 | $0.003 | 0.6 s |
+| ColQwen3 4B (image) | 0.622 | 0.751 | 0.896 | 0.526 | 0.616 | 0.595 | 0.576 | $0.22 | $0.067 | 1.2 s |
+| Fusion (all four, RRF k=10) | 0.652 | 0.767 | 0.910 | 0.545 | 0.630 | 0.612 | 0.624 | $1.57 | $0.070 | 3.3 s |
+| Fusion + Cohere Rerank 5 Pro (top 50) | **0.731** | **0.807** | **0.953** | **0.640** | **0.697** | **0.715** | **0.672** | $1.57 | $2.20 | 4.6 s |
+
+- Ceilings (perfect ranking): Complete@5 0.782, Complete@10 0.877.
+- Fusion + rerank vs fusion: nDCG@10 +0.079 [+0.051, +0.107]; Complete@5 +0.095 [+0.057, +0.133]; both significant.
+- Latency is first-stage p50 plus rerank request p50 (1.3 s); the fusion's slowest member is dense text through the API.
+- Total API spend for the project so far: $3.47.
