@@ -6,7 +6,9 @@ request headers. They are never logged or written to disk.
 
 from datetime import datetime, timezone
 import json
+from concurrent.futures import ThreadPoolExecutor
 import os
+import threading
 import time
 
 from dotenv import load_dotenv
@@ -17,6 +19,7 @@ from evidence_atlas.config import ROOT
 load_dotenv(ROOT / ".env")
 CALL_LOG = ROOT / "artifacts" / "api_calls.jsonl"
 RETRY_STATUS = {429, 500, 502, 503, 504}
+LOG_LOCK = threading.Lock()  # requests run in parallel threads
 
 
 def api_key(name):
@@ -61,7 +64,7 @@ def log_call(provider, model, kind, items, seconds, cost_usd, usage=None):
     record = {"at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "provider": provider,
               "model": model, "kind": kind, "items": items, "seconds": round(seconds, 3),
               "cost_usd": cost_usd, "usage": usage}
-    with open(CALL_LOG, "a") as f:
+    with LOG_LOCK, open(CALL_LOG, "a") as f:
         f.write(json.dumps(record) + "\n")
 
 
@@ -72,3 +75,11 @@ def logged_calls(model, kind):
         return []
     calls = [json.loads(line) for line in CALL_LOG.read_text().splitlines()]
     return [c for c in calls if c["model"] == model and c["kind"] == kind]
+
+
+def in_parallel(run, indices, batch_size, workers):
+    """Call run(batch) for each batch of indices, up to `workers` at a time. Re-raises the first error."""
+    batches = [indices[i:i + batch_size] for i in range(0, len(indices), batch_size)]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for future in [pool.submit(run, batch) for batch in batches]:
+            future.result()

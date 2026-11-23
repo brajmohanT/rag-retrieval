@@ -19,6 +19,7 @@ dependencies = [
 atlas-inspect = "evidence_atlas.data.inspection:main"
 atlas-bm25 = "evidence_atlas.retrieval.run_bm25:main"
 atlas-dense = "evidence_atlas.retrieval.run_dense:main"
+atlas-visual = "evidence_atlas.retrieval.run_visual:main"
 atlas-eval = "evidence_atlas.evaluation.report:main"
 atlas-smoke = "evidence_atlas.providers.smoke:main"
 

@@ -11,28 +11,29 @@ from urllib.parse import quote
 import numpy as np
 
 from evidence_atlas.providers.cache import Cache, digest
-from evidence_atlas.providers.http import api_key, log_call, post_json
+from evidence_atlas.providers.http import api_key, in_parallel, log_call, post_json
 
 BASE_URL = "https://api.superlinked.com/v1/encode/"
 COLQWEN3 = "TomoroAI/tomoro-colqwen3-embed-4b:compact"
 USD_PER_CREDIT = 0.00001
 
 
-def encode(items, is_query, model=COLQWEN3, cache=None, batch_size=8):
+def encode(items, is_query, model=COLQWEN3, cache=None, batch_size=4, workers=8):
     """Multi-vectors for texts (questions) or PNG bytes (pages), in input order.
 
+    Uncached items are sent in batches, up to `workers` requests at a time.
     Returns a list of float32 arrays shaped [vectors, dimensions].
     """
     cache = cache or Cache()
     keys = [Cache.key(provider="superlinked", model=model, is_query=is_query, input=digest(item)) for item in items]
     results = [cache.get_array(key) for key in keys]
-    missing = [i for i, result in enumerate(results) if result is None]
-    for start in range(0, len(missing), batch_size):
-        batch = missing[start:start + batch_size]
-        vectors = request(model, [items[i] for i in batch], is_query)
-        for i, array in zip(batch, vectors):
+
+    def run(batch):
+        for i, array in zip(batch, request(model, [items[i] for i in batch], is_query)):
             cache.put_array(keys[i], array)
             results[i] = array
+
+    in_parallel(run, [i for i, result in enumerate(results) if result is None], batch_size, workers)
     return results
 
 

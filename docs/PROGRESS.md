@@ -87,3 +87,17 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - The methods are complementary: dense better on 88 held-out questions, BM25 on 91. Taking the better of the two per question would give nDCG@10 0.623, the headroom for fusion.
 - Dev example Q208 (France table): judged page 403 ranks 3rd with dense; BM25 never retrieved it.
 - 39 tests pass.
+
+## Visual retrieval (step 8)
+
+- Added `retrieval/late_interaction.py` (exact MaxSim over all page vectors in one matrix), `retrieval/api_run.py` (shared cost, latency, save, and report for API runs; `run_dense.py` refactored onto it with byte-identical rankings), parallel requests in both clients, and `atlas-visual`.
+- Page images sent as the original PNGs (mostly 1654 × 2339). ColQwen3 `:compact` returns exactly 747 × 320 vectors for every page.
+- Held-out (n=211) nDCG@10: BM25 0.492, dense text 0.520, Voyage 0.592, ColQwen3 0.622. MRR@10: 0.604, 0.637, 0.709, 0.751. Complete@5: 0.441, 0.469, 0.531, 0.526 (ceiling 0.782).
+- Paired nDCG@10 differences, all significant: ColQwen3 − BM25 +0.131 [+0.091, +0.172]; ColQwen3 − dense +0.103 [+0.070, +0.133]; Voyage − dense +0.073 [+0.044, +0.102]; ColQwen3 − Voyage +0.030 [+0.001, +0.058] (borderline).
+- Visual models lead on every content type with n ≥ 23, including text-only pages. ColQwen3 − dense on charts +0.061 [+0.010, +0.109], on tables +0.059 [+0.002, +0.119].
+- Methods remain complementary: per question, ColQwen3 is (jointly) best on 101 held-out questions, Voyage 87, BM25 62, dense 50. Best-of-four per question: nDCG@10 0.721.
+- Cost: index Voyage $1.33, ColQwen3 $0.22; queries per 1,000 Voyage $0.0026, ColQwen3 $0.067. Query API latency p50: Voyage 565 ms, ColQwen3 1,240 ms; ColQwen3 search 23 ms.
+- ColQwen3 page vectors occupy about 1.06 GB in float32.
+- No held-out or dev question has a judged page among the 12 text-less pages, so that visual advantage is untested here.
+- Caveat: each comparison changes both the input (text vs image) and the model, so gains cannot be attributed to the image input alone.
+- 43 tests pass.

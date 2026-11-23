@@ -9,7 +9,7 @@ import json
 import numpy as np
 
 from evidence_atlas.providers.cache import Cache, digest
-from evidence_atlas.providers.http import api_key, log_call, post_json
+from evidence_atlas.providers.http import api_key, in_parallel, log_call, post_json
 
 BASE_URL = "https://openrouter.ai/api/v1"
 VOYAGE_MULTIMODAL = "mongodb/voyage-multimodal-3.5"
@@ -28,17 +28,17 @@ def content(item):
     return {"content": [{"type": "image_url", "image_url": {"url": url}}]}
 
 
-def embed(items, model=VOYAGE_MULTIMODAL, kind="document", cache=None, batch_size=8):
+def embed(items, model=VOYAGE_MULTIMODAL, kind="document", cache=None, batch_size=8, workers=8):
     """One float32 vector per item (text or PNG bytes), in input order.
 
     kind ("query" or "document") labels the call log, so costs can be read back per kind.
+    Uncached items are sent in batches, up to `workers` requests at a time.
     """
     cache = cache or Cache()
     keys = [Cache.key(provider="openrouter", model=model, input=digest(item)) for item in items]
     results = [cache.get_array(key) for key in keys]
-    missing = [i for i, result in enumerate(results) if result is None]
-    for start in range(0, len(missing), batch_size):
-        batch = missing[start:start + batch_size]
+
+    def run(batch):
         inputs = [items[i] for i in batch]
         if not all(isinstance(item, str) for item in inputs):
             inputs = [content(item) for item in inputs]
@@ -46,10 +46,12 @@ def embed(items, model=VOYAGE_MULTIMODAL, kind="document", cache=None, batch_siz
         response, seconds = post_json(f"{BASE_URL}/embeddings", payload, headers())
         usage = response.get("usage", {})
         log_call("openrouter", model, kind, len(batch), seconds, usage.get("cost"), usage)
-        for row in sorted(response["data"], key=lambda row: row["index"]):
+        for row in response["data"]:
             i = batch[row["index"]]
             results[i] = np.asarray(row["embedding"], dtype=np.float32)
             cache.put_array(keys[i], results[i])
+
+    in_parallel(run, [i for i, result in enumerate(results) if result is None], batch_size, workers)
     return results
 
 

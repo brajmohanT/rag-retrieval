@@ -169,7 +169,10 @@ Qwen3-Embedding-8B via OpenRouter, one vector per page (`atlas-dense`); results 
 
 **Deliverable:** BM25 versus dense-text comparison, including cost per 1,000 pages and queries.
 
-### 8. Add visual retrieval
+### 8. Add visual retrieval — done
+
+Voyage multimodal 3.5 (single-vector) and ColQwen3 4B (multi-vector, MaxSim) over page images (`atlas-visual`); results in `PROGRESS.md`. The match heatmap (item 4 below) moves to the frontend step, where patch positions are mapped onto the page image. Original requirements follow.
+
 
 1. Validate the Superlinked ColQwen3 API on a handful of pages and queries.
 2. Embed all page images once; cache the multi-vectors.
