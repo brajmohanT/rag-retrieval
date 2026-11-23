@@ -23,6 +23,7 @@ export function Scoreboard({ lanes, meta }: Props) {
               <th scope="col">Right page in top 5</th>
               <th scope="col">Enough to answer in top 5</th>
               <th scope="col">Tables nDCG</th>
+              <th scope="col">Answers matching reference</th>
               <th scope="col">Cost / 1,000 questions</th>
               <th scope="col">Latency (p50)</th>
             </tr>
@@ -44,6 +45,16 @@ export function Scoreboard({ lanes, meta }: Props) {
                     <span className="muted small"> of {pct(ceiling['complete@5'])} possible</span>
                   </td>
                   <td>{c.heldout_by_content_type.Table?.['ndcg@10'].toFixed(3) ?? '–'}</td>
+                  <td>
+                    {c.answers ? (
+                      <>
+                        {pct(c.answers.correct)}
+                        <span className="muted small"> +{pct(c.answers.partial)} partly</span>
+                      </>
+                    ) : (
+                      '–'
+                    )}
+                  </td>
                   <td>{money(c.query_cost_per_1k_usd)}</td>
                   <td>{seconds(c.latency_p50_ms)}</td>
                 </tr>
@@ -55,7 +66,8 @@ export function Scoreboard({ lanes, meta }: Props) {
       <p className="small muted">
         ± is half the 95% bootstrap interval. “Enough to answer”: a complete-answer page, or every partial page, is in the top
         5; some questions have more evidence pages than fit, hence the ceiling. Latency is the API-call median; reranking adds to
-        retrieval time.
+        retrieval time. Answers are graded against the dataset's reference answers by the same model (DeepSeek), so treat them as
+        indicative; – means no precomputed answers for that setup.
       </p>
     </section>
   )

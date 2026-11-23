@@ -220,7 +220,10 @@ So the demo is instant and free for benchmark questions:
 
 **Deliverable:** results store with per-configuration scoreboards.
 
-### 11. Add answer generation and citations
+### 11. Add answer generation and citations — done
+
+DeepSeek V4.1 Flash on page text (`atlas-answers`); results in `PROGRESS.md`; shown in the demo. Original requirements follow.
+
 
 Use one fixed Claude model across retrieval methods.
 

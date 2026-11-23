@@ -27,6 +27,7 @@ uv run atlas-fusion                  # tune rank fusion on dev, evaluate on held
 uv run atlas-rerank cohere           # rerank the fusion shortlist on dev; --partition all for the final run
 uv run atlas-grid                    # precompute all 66 demo configurations (--dry-run to estimate cost)
 uv run atlas-export-pages            # page thumbnails and large images for the demo
+uv run atlas-answers                 # cited answers for the demo presets (--mode text|image|both)
 uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 uv run atlas-smoke                   # one cached call to each API provider (needs .env keys)
 ```
@@ -51,6 +52,7 @@ src/evidence_atlas/ project code
   retrieval/        retrievers and the shared run format
   providers/        API clients, response cache, call log
   demo/             precomputed configuration grid and page images for the demo
+  generation/       cited answers and grading
   api/              demo backend (FastAPI)
 web/                demo frontend (React + Vite)
 tests/

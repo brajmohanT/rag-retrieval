@@ -35,8 +35,24 @@ SUMMARY_METRICS = ["ndcg@10", "mrr@10", "hit@5", "recall@5", "complete@5", "comp
 LANE_PAGES = 10
 
 
-def config_summary(config, ceiling):
+ANSWER_MODE = "text"  # answers in artifacts/answers/answers.json are keyed "<config>#<mode>"
+
+
+def answer_summary(records, query_ids):
+    """Share of held-out answers graded correct / partial / incorrect / abstained."""
+    rows = [records[str(q)] for q in query_ids if str(q) in records]
+    if not rows:
+        return None
+    share = lambda v: sum(r["verdict"] == v for r in rows) / len(rows)  # noqa: E731
+    return {"n": len(rows), "correct": share("CORRECT"), "partial": share("PARTIAL"),
+            "incorrect": share("INCORRECT"), "abstained": share("ABSTAINED"),
+            "cites_judged_page": sum(r["cites_judged_page"] for r in rows) / len(rows),
+            "cost_per_1k_usd": 1000 * sum(r["cost_usd"] for r in rows) / len(rows)}
+
+
+def config_summary(config, ceiling, answers=None):
     return {
+        "answers": answers,
         "id": config["id"], "members": config["members"], "visual_weight": config["visual_weight"],
         "rerank": config["rerank"], "index_cost_usd": config["index_cost_usd"],
         "query_cost_per_1k_usd": config["query_cost_per_1k_usd"], "latency_p50_ms": config["latency_p50_ms"],
@@ -47,11 +63,14 @@ def config_summary(config, ceiling):
     }
 
 
-def create_app(grid=None, data=None, pages_dir=None):
+def create_app(grid=None, data=None, pages_dir=None, answers=None):
     config = load_config()
     grid = grid or json.loads((config["artifacts_dir"] / "demo" / "grid.json").read_text())
     data = data or load_dataset(config["dataset"]["data_dir"])
     pages_dir = pages_dir or config["artifacts_dir"] / "demo" / "pages"
+    answers_file = config["artifacts_dir"] / "answers" / "answers.json"
+    if answers is None:
+        answers = json.loads(answers_file.read_text()) if answers_file.exists() else {}
     sizes = json.loads((pages_dir / "sizes.json").read_text()) if (pages_dir / "sizes.json").exists() else {}
     questions = {q["query_id"]: q for q in grid["questions"]}
     configs = {c["id"]: c for c in grid["configs"]}
@@ -59,6 +78,7 @@ def create_app(grid=None, data=None, pages_dir=None):
     heldout = load_partitions(config["evaluation"]["partitions_file"])["heldout"]
     perfect = summarize(evaluate(perfect_rankings(data, heldout), data, heldout), samples=1)
     ceiling = {m: perfect[m]["mean"] for m in SUMMARY_METRICS}
+    answer_stats = {c: answer_summary(answers.get(f"{c}#{ANSWER_MODE}", {}), heldout) for c in configs}
 
     app = FastAPI(title="Evidence Atlas demo API")
 
@@ -69,7 +89,7 @@ def create_app(grid=None, data=None, pages_dir=None):
 
     @app.get("/api/configs")
     def list_configs():
-        return [config_summary(c, ceiling) for c in grid["configs"]]
+        return [config_summary(c, ceiling, answer_stats[c["id"]]) for c in grid["configs"]]
 
     @app.get("/api/questions")
     def list_questions():
@@ -91,9 +111,13 @@ def create_app(grid=None, data=None, pages_dir=None):
         lanes = []
         for config_id in lane_ids:
             ranking = grid["rankings"][config_id][str(query_id)][:LANE_PAGES]
+            record = answers.get(f"{config_id}#{ANSWER_MODE}", {}).get(str(query_id))
+            answer = record and {k: record[k] for k in ("text", "cited", "invalid_citations", "abstained", "verdict",
+                                                         "pages", "cites_judged_page")}
             lanes.append({"config": config_id, "metrics": grid["question_metrics"][config_id][str(query_id)],
                           "pages": [{"page_id": p, "rank": i + 1, "grade": grades.get(p, 0)}
-                                    for i, p in enumerate(ranking)]})
+                                    for i, p in enumerate(ranking)],
+                          "answer": answer})
         return {"question": {**q, "judged": [{"page_id": p, "grade": g, "boxes": boxes.get(p, [])}
                                              for p, g in q["judged"]]},
                 "lanes": lanes}

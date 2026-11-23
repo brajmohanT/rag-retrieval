@@ -44,3 +44,16 @@ def test_unknown_ids_are_404(client):
 def test_page_details(client):
     page = client.get("/api/pages/403").json()
     assert page["pdf_page"] == 169 and page["width"] == 2339 and page["license"]
+
+
+def test_answers_attach_to_lanes_and_scoreboard():
+    fusion = "bm25+dense+voyage+colqwen3|vw1|cohere"
+    record = {"text": "73% [p403].", "cited": [403], "invalid_citations": [], "abstained": False,
+              "verdict": "CORRECT", "pages": [403], "cites_judged_page": True, "cost_usd": 0.001}
+    app = create_app(answers={f"{fusion}#text": {"208": record}})
+    c = TestClient(app)
+    lanes = c.get("/api/questions/208", params={"configs": f"{fusion},bm25|vw1"}).json()["lanes"]
+    assert lanes[0]["answer"]["verdict"] == "CORRECT" and lanes[0]["answer"]["cited"] == [403]
+    assert lanes[1]["answer"] is None
+    summaries = {s["id"]: s["answers"] for s in c.get("/api/configs").json()}
+    assert summaries["bm25|vw1"] is None  # Q208 is a dev question; held-out answers are what count

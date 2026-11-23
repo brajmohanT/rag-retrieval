@@ -88,5 +88,6 @@ def chat(messages, model=DEEPSEEK_FLASH, cache=None, **params):
     log_call("openrouter", model, "chat", 1, seconds, usage.get("cost"), usage)
     result = {"text": response["choices"][0]["message"].get("content") or "", "usage": usage,
               "served_by": response.get("provider")}
-    cache.put_json(key, result)
+    if result["text"].strip():  # an empty reply (e.g. output budget spent on reasoning) is never cached
+        cache.put_json(key, result)
     return result

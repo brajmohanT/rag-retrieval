@@ -51,6 +51,7 @@ export default function App() {
   if (!meta || !detail) return <p className="loading">Loading…</p>
 
   const q = detail.question
+  const grades = new Map(q.judged.map((j) => [j.page_id, j.grade]))
   return (
     <div className="app">
       <header className="top">
@@ -107,6 +108,7 @@ export default function App() {
                 configs={configs}
                 meta={meta}
                 topK={topK}
+                grades={grades}
                 onChange={(id) => replaceLane(i, id)}
                 onRemove={lanes.length > 1 ? () => setLanes(lanes.filter((_, j) => j !== i)) : undefined}
                 onOpenPage={(pageId) => setViewing(pageId)}

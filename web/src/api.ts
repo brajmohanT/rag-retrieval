@@ -13,6 +13,27 @@ export type Config = {
   heldout: Record<string, Stat>
   heldout_by_content_type: Record<string, { n: number; 'ndcg@10': number; 'complete@5': number }>
   ceiling: Record<string, number>
+  answers: AnswerStats | null
+}
+
+export type AnswerStats = {
+  n: number
+  correct: number
+  partial: number
+  incorrect: number
+  abstained: number
+  cites_judged_page: number
+  cost_per_1k_usd: number
+}
+
+export type Answer = {
+  text: string
+  cited: number[]
+  invalid_citations: number[]
+  abstained: boolean
+  verdict: 'CORRECT' | 'PARTIAL' | 'INCORRECT' | 'ABSTAINED' | 'UNPARSED'
+  pages: number[]
+  cites_judged_page: boolean
 }
 
 export type Meta = {
@@ -38,6 +59,7 @@ export type Lane = {
   config: string
   metrics: Record<string, number>
   pages: { page_id: number; rank: number; grade: number }[]
+  answer: Answer | null
 }
 
 export type QuestionDetail = {

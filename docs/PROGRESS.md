@@ -157,3 +157,33 @@ Held-out (n=211), each method frozen before held-out evaluation:
 - Frontend `web/` (React 19 + Vite + TypeScript): searchable question list with content-type filters; one row ("lane") per retrieval setup showing top 5 or 10 page thumbnails marked complete / partial / not relevant; a lane editor for any of the 66 setups or a preset; a page viewer with annotators' evidence boxes over the page and the extracted text beside it; a held-out scoreboard with intervals, ceiling, table nDCG, cost, and latency. Light and dark themes; the question in view is kept in the URL (`#q=208`). Opens on Q208, where keyword search misses the France table.
 - Checked with headless Chrome at 1440 px and 600 px. Narrower phone widths and the page viewer still need a check in a real browser.
 - 57 tests pass (4 API tests).
+
+## Cited answers: setup and answer-mode test (step 11, in progress)
+
+- Added `generation/answer.py` (answers from retrieved pages only, `[p<id>]` citations, explicit abstention, invalid-citation check; a separate grading call against the reference answer) and `atlas-answers`. Answer model: DeepSeek V4.1 Flash via OpenRouter; it also grades (same-model grading may be biased; to be spot-checked).
+- Reliability fix: about 10% of DeepSeek calls returned empty text after spending the output budget on hidden reasoning (87% of output tokens were reasoning). Empty replies are no longer cached and are retried once with double the budget.
+- DeepSeek reads page images: from the image of page 403 alone it answered Q208 exactly (73%). An image cost about 500 input tokens.
+- Answer-mode test, all 107 dev questions, top 5 pages of fusion + Cohere: correct 64% (text), 65% (image), 64% (both). Score difference vs text: image +0.005 [−0.042, +0.051], both −0.005 [−0.061, +0.042]; no gain on tables or charts either. A 20-question pilot had suggested "both" was far better (70% vs 45%); it was noise. Cost per question (answer + grade): text $0.0008, image $0.0010, both $0.0014.
+- Decision input: page images give DeepSeek no measurable benefit here; text mode is the cheapest.
+- 63 tests pass.
+
+## Cited answers: full run and demo (step 11 complete)
+
+- Text-mode answers for the 7 demo presets × 318 questions (top 5 pages each), graded against reference answers. Cost about $1.70.
+- Held-out (n=211), correct / partial / declined / incorrect; score = correct 1, partial 0.5, 95% interval:
+
+| Setup | Correct | Partial | Declined | Incorrect | Score | Cites a judged page |
+| --- | --- | --- | --- | --- | --- | --- |
+| Keyword (BM25) | 39% | 30% | 23% | 8% | 0.538 [0.483–0.590] | 65% |
+| Text embeddings | 46% | 30% | 17% | 8% | 0.609 [0.550–0.664] | 68% |
+| Voyage (image) | 50% | 29% | 10% | 10% | 0.649 [0.597–0.699] | 73% |
+| ColQwen3 (image) | 50% | 31% | 10% | 9% | 0.652 [0.595–0.704] | 76% |
+| Hybrid | 54% | 27% | 9% | 11% | 0.668 [0.614–0.718] | 73% |
+| Hybrid + rerank | 55% | 29% | 8% | 9% | 0.690 [0.640–0.739] | 79% |
+| Fast hybrid + rerank | 54% | 29% | 9% | 9% | 0.680 [0.628–0.730] | 78% |
+
+- Paired score differences: hybrid + rerank − keyword +0.152 [+0.102, +0.206]; hybrid + rerank − ColQwen3 +0.038 [+0.002, +0.076]. No invalid citations in any setup.
+- Weaker retrieval mostly causes declined answers rather than wrong ones: among answers actually given, 10% (keyword) vs 9% (hybrid + rerank) were graded incorrect.
+- Grader spot check: 20 random held-out graded answers (hybrid + rerank) reviewed by hand; agreed with 17. The 3 disagreements went both ways (one lenient, two strict); no sign of favouring its own answers. Treat answer grades as indicative.
+- Demo: each preset lane shows its answer with citation buttons coloured by the cited page's relevance (opening the page viewer) and a verdict badge; the scoreboard adds "Answers matching reference". The backend loads `artifacts/answers/answers.json` at start.
+- 64 tests pass.

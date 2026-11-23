@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { laneName, type Config, type Lane, type Meta } from './api'
+import { AnswerBox } from './AnswerBox'
 import { LaneEditor } from './LaneEditor'
 
 type Props = {
@@ -10,12 +11,13 @@ type Props = {
   topK: number
   onChange: (id: string) => void
   onRemove?: () => void
-  onOpenPage: (pageId: number, grade: number) => void
+  grades: Map<number, number>
+  onOpenPage: (pageId: number) => void
 }
 
 const GRADE = { 2: 'Complete answer', 1: 'Partial evidence' } as Record<number, string>
 
-export function LaneColumn({ lane, config, configs, meta, topK, onChange, onRemove, onOpenPage }: Props) {
+export function LaneColumn({ lane, config, configs, meta, topK, grades, onChange, onRemove, onOpenPage }: Props) {
   const [editing, setEditing] = useState(false)
   const found = lane.pages.slice(0, topK).filter((p) => p.grade > 0).length
   const complete = topK === 5 ? lane.metrics['complete@5'] : null
@@ -50,7 +52,7 @@ export function LaneColumn({ lane, config, configs, meta, topK, onChange, onRemo
           <li key={p.page_id}>
             <button
               className={`page g${p.grade}`}
-              onClick={() => onOpenPage(p.page_id, p.grade)}
+              onClick={() => onOpenPage(p.page_id)}
               aria-label={`Rank ${p.rank}, page ${p.page_id}${p.grade ? `, ${GRADE[p.grade]}` : ', not judged relevant'}`}
             >
               <span className="rank">{p.rank}</span>
@@ -60,6 +62,7 @@ export function LaneColumn({ lane, config, configs, meta, topK, onChange, onRemo
           </li>
         ))}
       </ol>
+      <AnswerBox answer={lane.answer} grades={grades} onOpenPage={onOpenPage} />
     </section>
   )
 }
