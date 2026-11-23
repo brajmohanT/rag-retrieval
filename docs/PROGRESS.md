@@ -60,3 +60,12 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - Hand-calculated tests; 21 tests pass.
 - Sanity check on held-out: a perfect ranking scores nDCG@10 1.000; random scores 0.003. Perfect-ranking ceilings: Recall@5 0.845, Complete@5 0.782.
 - Protocol written to `docs/EVALUATION_PROTOCOL.md`. Run format with cost and latency is deferred to step 5.
+
+## BM25 baseline (step 5)
+
+- Implemented BM25 (`retrieval/bm25.py`) with per-term explanations, the shared run format (`retrieval/runs.py`), run reports (`evaluation/report.py`), and commands `atlas-bm25` and `atlas-eval`.
+- Held-out (n=211): nDCG@10 0.492 [0.447–0.534], MRR@10 0.604, Hit@5 0.782, Recall@5 0.418 (ceiling 0.845), Complete@5 0.441 (ceiling 0.782).
+- Weakest on tables: held-out Table nDCG@10 0.312, Complete@5 0.261 (ceiling 0.667).
+- Index build 2.7 s; query p50 0.6 ms, p95 0.9 ms; cost $0.
+- 14 of 107 dev questions have no judged page in the top 10. Example: Q208 (France's 2020 national employment rate) fails because the answer table writes "FR" and "Nat.", never "France" or "national".
+- 27 tests pass.

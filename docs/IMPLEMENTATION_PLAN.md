@@ -129,18 +129,19 @@ Test metrics against small hand-calculated examples. Describe results as our eva
 
 **Deliverable:** tested evaluator and frozen partitions.
 
-### 5. Build the BM25 baseline
+### 5. Build the BM25 baseline — done
 
-1. Normalize the supplied Markdown without losing table content.
-2. Build a BM25 index over pages.
-3. Run development questions and export rankings in the shared format.
-4. Evaluate, with breakdowns, and inspect failures in the evidence viewer.
+Own BM25 implementation (`retrieval/bm25.py`, k1 1.2, b 0.75, Snowball stemming) over the supplied Markdown, with per-term score explanations for the demo. Results: `artifacts/runs/bm25/report.md`; summary in `PROGRESS.md`.
+
+Every method saves runs in one format (`retrieval/runs.py`):
 
 ```text
-query_id, page_id, rank, score, method, config_id, run_id
+artifacts/runs/<name>/
+    run.json        method, settings, dataset revision, index time, query latency p50/p95, cost
+    rankings.jsonl  {"query_id", "pages", "scores"} per question, top 100, best first
+    metrics.json    written by atlas-eval
+    report.md       written by atlas-eval
 ```
-
-**Deliverable:** first reproducible results and baseline report.
 
 ### 6. Build the API provider layer
 

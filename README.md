@@ -20,6 +20,8 @@ The dataset (~495 MB) lives in `data/vidore_v3_hr/` and is not in Git.
 ```sh
 uv run pytest                        # run tests
 uv run atlas-inspect --query-id 0    # audit the dataset; write an evidence viewer to artifacts/inspection/0/
+uv run atlas-bm25                    # run BM25 on all questions; report in artifacts/runs/bm25/
+uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 ```
 
 ## Layout
@@ -28,7 +30,9 @@ uv run atlas-inspect --query-id 0    # audit the dataset; write an evidence view
 configs/            dataset paths and pinned revision
 src/evidence_atlas/ project code
   config.py         loads configs/*.yaml
-  data/             dataset audit and evidence viewer
+  data/             dataset records, audit, evidence viewer
+  evaluation/       partitions, metrics, run reports
+  retrieval/        retrievers and the shared run format
 tests/
 docs/               plan, progress, research, discussion notes
 data/, artifacts/   local only (ignored by Git)
