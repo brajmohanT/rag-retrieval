@@ -101,3 +101,12 @@ Completed work only. Planned work stays in `IMPLEMENTATION_PLAN.md`.
 - No held-out or dev question has a judged page among the 12 text-less pages, so that visual advantage is untested here.
 - Caveat: each comparison changes both the input (text vs image) and the model, so gains cannot be attributed to the image input alone.
 - 43 tests pass.
+
+## Fusion (step 9, part 1)
+
+- Added `retrieval/fusion.py` (reciprocal rank fusion) and `atlas-fusion`: tries every combination of two or more runs with equal weights and k ∈ {10, 30, 60} (33 settings), chooses by dev nDCG@10 only, then evaluates once on held-out. All settings tried are saved in `artifacts/runs/fusion/tuning.json`.
+- Chosen on dev: all four methods, k = 10 (dev nDCG@10 0.617 vs 0.594 for ColQwen3 alone).
+- Held-out nDCG@10 0.652 [0.613–0.690] vs ColQwen3 0.622; paired difference +0.029 [+0.007, +0.052], significant. MRR@10, Complete@5, and Recall@5 gains are positive but not significant.
+- Shortlist quality on held-out (fusion): Recall@20 0.802, Recall@50 0.893; Complete@20 0.701, Complete@50 0.768.
+- Fusion cost and latency: the sum of its members' costs; latency is the slowest member's (dense text, 3.3 s via API).
+- 46 tests pass.
