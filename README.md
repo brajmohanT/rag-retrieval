@@ -26,9 +26,19 @@ uv run atlas-visual                  # visual retrieval from page images: voyage
 uv run atlas-fusion                  # tune rank fusion on dev, evaluate on held-out (no API cost)
 uv run atlas-rerank cohere           # rerank the fusion shortlist on dev; --partition all for the final run
 uv run atlas-grid                    # precompute all 66 demo configurations (--dry-run to estimate cost)
+uv run atlas-export-pages            # page thumbnails and large images for the demo
 uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 uv run atlas-smoke                   # one cached call to each API provider (needs .env keys)
 ```
+
+## Demo
+
+```sh
+(cd web && npm install && npm run build)   # build the frontend once
+uv run atlas-serve                         # http://127.0.0.1:8000
+```
+
+For frontend development, run `uv run atlas-serve` and `cd web && npm run dev` (Vite proxies `/api` to the backend).
 
 ## Layout
 
@@ -40,7 +50,9 @@ src/evidence_atlas/ project code
   evaluation/       partitions, metrics, run reports
   retrieval/        retrievers and the shared run format
   providers/        API clients, response cache, call log
-  demo/             precomputed configuration grid for the demo
+  demo/             precomputed configuration grid and page images for the demo
+  api/              demo backend (FastAPI)
+web/                demo frontend (React + Vite)
 tests/
 docs/               plan, progress, research, discussion notes
 data/, artifacts/   local only (ignored by Git)

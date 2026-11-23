@@ -149,3 +149,11 @@ Held-out (n=211), each method frozen before held-out evaluation:
 - Finding, consistent on dev and held-out: with Cohere reranking, BM25 + Voyage matches the four-way fusion (dev nDCG@10 0.730 vs 0.728; held-out 0.733 vs 0.731) at an estimated 1.9 s instead of 4.7 s p50. Without reranking, the first-stage choice matters (BM25 + Voyage alone: dev 0.584).
 - Held-out scoreboards cover 66 configurations explored, not tuned; picking the best of them on held-out would overfit. Choices are made on dev.
 - 53 tests pass.
+
+## Clickable demo, first version (steps 13–14, benchmark questions)
+
+- `atlas-export-pages`: a 320 px thumbnail and an 1100 px large WebP per page (185 MB in total; large images are readable), plus original pixel sizes for evidence boxes.
+- Backend `api/app.py` (FastAPI, `atlas-serve`): `/api/meta`, `/api/configs`, `/api/questions`, `/api/questions/{id}?configs=…` (top 10 per lane with relevance grades, per-question metrics, judged pages with evidence boxes), `/api/pages/{id}`, page images, and the built frontend. Served from the precomputed grid: no API calls or cost at view time. Ceilings computed from the data.
+- Frontend `web/` (React 19 + Vite + TypeScript): searchable question list with content-type filters; one row ("lane") per retrieval setup showing top 5 or 10 page thumbnails marked complete / partial / not relevant; a lane editor for any of the 66 setups or a preset; a page viewer with annotators' evidence boxes over the page and the extracted text beside it; a held-out scoreboard with intervals, ceiling, table nDCG, cost, and latency. Light and dark themes; the question in view is kept in the URL (`#q=208`). Opens on Q208, where keyword search misses the France table.
+- Checked with headless Chrome at 1440 px and 600 px. Narrower phone widths and the page viewer still need a check in a real browser.
+- 57 tests pass (4 API tests).

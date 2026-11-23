@@ -248,7 +248,10 @@ Measure answer quality, citation support, latency, image-token usage, and cost.
 
 **Deliverable:** evidence separating retrieval failures from page-reading failures.
 
-### 13. Build the backend
+### 13. Build the backend — benchmark questions done
+
+`api/app.py` serves the grid, questions, pages, and images (`atlas-serve`). Live custom questions, rate limits, and spend cap remain. Original requirements follow.
+
 
 FastAPI service that:
 
@@ -258,7 +261,10 @@ FastAPI service that:
 
 **Deliverable:** documented, tested API.
 
-### 14. Build the interactive frontend
+### 14. Build the interactive frontend — first version done
+
+`web/`: question list, lanes, lane editor, page viewer with evidence boxes, scoreboard. Heatmap, cited answers, and the curated gallery remain. Original requirements follow.
+
 
 The showcase experience:
 

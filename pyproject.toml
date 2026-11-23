@@ -5,6 +5,7 @@ description = "Compare text, visual, and hybrid retrieval on ViDoRe V3 HR and sh
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi>=0.115",
     "httpx>=0.28",
     "numpy>=2",
     "pillow==12.1.1",
@@ -13,6 +14,7 @@ dependencies = [
     "python-dotenv>=1",
     "pyyaml>=6.0",
     "snowballstemmer>=3",
+    "uvicorn>=0.34",
 ]
 
 [project.scripts]
@@ -23,6 +25,8 @@ atlas-visual = "evidence_atlas.retrieval.run_visual:main"
 atlas-fusion = "evidence_atlas.retrieval.run_fusion:main"
 atlas-rerank = "evidence_atlas.retrieval.run_rerank:main"
 atlas-grid = "evidence_atlas.demo.grid:main"
+atlas-export-pages = "evidence_atlas.demo.pages:main"
+atlas-serve = "evidence_atlas.api.app:main"
 atlas-eval = "evidence_atlas.evaluation.report:main"
 atlas-smoke = "evidence_atlas.providers.smoke:main"
 
