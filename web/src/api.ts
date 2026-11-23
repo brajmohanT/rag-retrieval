@@ -42,7 +42,11 @@ export type Meta = {
   default_lanes: string[]
   questions: number
   configs: number
+  pages: number
+  vector_bytes_per_page: Record<string, number>
 }
+
+export type ShowcaseItem = { query_id: number; title: string; story: string; lanes: string[] }
 
 export type QuestionSummary = {
   query_id: number
@@ -94,6 +98,7 @@ export const api = {
   question: (id: number, lanes: string[]) =>
     get<QuestionDetail>(`/api/questions/${id}?configs=${lanes.map(encodeURIComponent).join(',')}`),
   page: (id: number) => get<Page>(`/api/pages/${id}`),
+  showcase: () => get<ShowcaseItem[]>('/api/showcase'),
 }
 
 // Configuration IDs look like "bm25+voyage|vw0.5|cohere".
@@ -116,3 +121,7 @@ export function laneName(config: Config, presets: Meta['presets']): string {
   if (config.rerank) parts.push('rerank')
   return parts.join(' · ')
 }
+
+export const pct = (x: number) => `${Math.round(x * 100)}%`
+export const money = (x: number) => (x === 0 ? '$0' : x < 0.01 ? '<$0.01' : `$${x.toFixed(2)}`)
+export const seconds = (ms: number) => (ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`)

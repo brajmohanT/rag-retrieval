@@ -187,3 +187,14 @@ Held-out (n=211), each method frozen before held-out evaluation:
 - Grader spot check: 20 random held-out graded answers (hybrid + rerank) reviewed by hand; agreed with 17. The 3 disagreements went both ways (one lenient, two strict); no sign of favouring its own answers. Treat answer grades as indicative.
 - Demo: each preset lane shows its answer with citation buttons coloured by the cited page's relevance (opening the page viewer) and a verdict badge; the scoreboard adds "Answers matching reference". The backend loads `artifacts/answers/answers.json` at start.
 - 64 tests pass.
+
+## Showcase gallery, polish, and client pages (steps 14–15)
+
+- Showcase gallery (`configs/showcase.json`, served at `/api/showcase`): six questions chosen from the data by story, each opening with its own lanes and a one-paragraph explanation: Q208 (keyword search can't read “FR”), Q253 (visual search goes straight to the table), Q204 (look-alike page trap that only the reranker avoids), Q187 (evidence on two pages), Q64 (two countries, two pages), Q293 (honest failure: ambiguous question; right page found at rank 2, answers still graded wrong).
+- Polish: scoreboard fits without horizontal scrolling; Markdown bold in answers renders as bold; on narrow screens the question list moves below the content; the view and question are kept in the URL (`#explore/q=204`, `#guide`, `#cost`, `#privacy`).
+- Findings & guide page: five measured findings, five "if you need …" recommendations with live numbers, nDCG by content type for six setups, and stated limits. The self-hosted card shows no API prices.
+- Cost calculator: pages, questions per month, setup, and answers on/off → one-time indexing, monthly API cost, vector storage, and median response time, scaled from measured costs. States what is excluded.
+- Privacy & deployment page: what this demo sent to which APIs, three deployment patterns (managed APIs, private cloud, on-premises), and a pre-launch checklist.
+- All 14 documents are CC BY 4.0, so page images can be published with attribution.
+- Checked with headless Chrome at 1440 px and 600 px. 65 tests pass.
+- Total API spend for the project so far: $6.10 (from `artifacts/api_calls.jsonl`).

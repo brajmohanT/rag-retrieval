@@ -57,3 +57,12 @@ def test_answers_attach_to_lanes_and_scoreboard():
     assert lanes[1]["answer"] is None
     summaries = {s["id"]: s["answers"] for s in c.get("/api/configs").json()}
     assert summaries["bm25|vw1"] is None  # Q208 is a dev question; held-out answers are what count
+
+
+def test_showcase_and_storage(client):
+    items = client.get("/api/showcase").json()
+    assert [i["query_id"] for i in items][:1] == [208] and len(items) == 6
+    lanes = client.get("/api/questions/204", params={"configs": ",".join(items[2]["lanes"])}).json()["lanes"]
+    assert len(lanes) == 4
+    storage = client.get("/api/meta").json()["vector_bytes_per_page"]
+    assert storage["voyage"] == 4096 and storage["colqwen3"] > 900_000

@@ -1,10 +1,7 @@
-import { laneName, type Config, type Meta } from './api'
+import { laneName, money, pct, seconds, type Config, type Meta } from './api'
 
 type Props = { lanes: Config[]; meta: Meta }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`
-const money = (x: number) => (x === 0 ? '$0' : x < 0.01 ? '<$0.01' : `$${x.toFixed(2)}`)
-const seconds = (ms: number) => (ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(1)} s`)
 
 // Held-out results for the setups in the lanes: quality, cost, and speed side by side.
 export function Scoreboard({ lanes, meta }: Props) {

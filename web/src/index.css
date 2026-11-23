@@ -181,3 +181,56 @@ tr.best th, tr.best td { background: var(--ok-soft); }
 .cite.g1 { background: var(--partial-soft); color: var(--partial); }
 .badge.partial { background: var(--partial-soft); color: var(--partial); }
 .badge.neutral { background: var(--line); color: var(--muted); }
+
+/* Section tabs */
+.top { display: flex; justify-content: space-between; align-items: end; gap: 1rem; flex-wrap: wrap; }
+.tabs { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.tabs button { border: none; background: none; border-radius: 999px; padding: 0.35rem 0.85rem; color: var(--muted); font-weight: 500; }
+.tabs button.on { background: var(--ink); color: var(--bg); }
+
+/* Showcase strip */
+.showcase { margin-bottom: 0.9rem; }
+.showcase h2 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
+.showcase ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.story { display: flex; gap: 0.6rem; align-items: center; width: 100%; height: 100%; text-align: left; padding: 0.55rem 0.7rem;
+  background: var(--surface); box-shadow: var(--shadow); border-color: transparent; }
+.story.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.story-n { flex: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem; font-weight: 700;
+  background: var(--bg); color: var(--muted); }
+.story.on .story-n { background: var(--accent); color: #fff; }
+.story-title { font-size: 0.86rem; font-weight: 600; line-height: 1.3; }
+.story-text { margin: 0.2rem 0 0.6rem; padding: 0.6rem 0.8rem; border-radius: 8px; background: color-mix(in srgb, var(--accent) 9%, transparent); max-width: 95ch; }
+
+/* Article pages: guide, cost, privacy */
+.page-article { max-width: 1100px; padding-bottom: 2rem; }
+.page-article h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.page-article h3 { font-size: 1.05rem; margin: 1.8rem 0 0.6rem; }
+.page-article h4 { font-size: 1rem; margin: 0.15rem 0 0.4rem; }
+.page-article li { margin-bottom: 0.45rem; max-width: 95ch; }
+.lede { font-size: 1.05rem; color: var(--muted); max-width: 80ch; }
+.findings li { margin-bottom: 0.7rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.75rem; }
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.9rem 1rem; }
+.card ul { padding-left: 1.1rem; margin: 0.4rem 0 0; }
+.card-setup { font-weight: 600; color: var(--accent); }
+.card-stats { border-top: 1px solid var(--line); padding-top: 0.45rem; margin-top: 0.6rem; font-variant-numeric: tabular-nums; }
+td.best-cell { background: var(--ok-soft); font-weight: 600; }
+.calc { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.8rem 1rem; align-items: end; margin: 1rem 0 1.2rem;
+  background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem; }
+.calc label { display: grid; gap: 0.25rem; font-size: 0.85rem; color: var(--muted); }
+.calc label.check { display: flex; color: var(--ink); }
+.calc input[type='number'], .calc select { padding: 0.45rem 0.6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+.results .big { font-size: 1.7rem; font-weight: 700; margin: 0.1rem 0; font-variant-numeric: tabular-nums; }
+
+/* Scoreboard fits without sideways scrolling on desktop */
+.scoreboard th, .scoreboard td { white-space: normal; padding: 0.45rem 0.5rem; }
+.scoreboard thead th { vertical-align: bottom; }
+.scoreboard tbody th { min-width: 9rem; }
+
+@media (max-width: 900px) {
+  .questions { order: 2; }
+  .showcase ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .showcase ol { grid-template-columns: minmax(0, 1fr); }
+}

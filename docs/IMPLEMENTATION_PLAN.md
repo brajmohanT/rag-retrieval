@@ -1,6 +1,6 @@
 # Evidence Atlas: implementation plan
 
-**Status:** Dataset audit and query-0 evidence viewer done; everything else planned.  
+**Status (23 November 2026):** Steps 1–11 and 15 done; local demo complete for benchmark questions. Remaining: deployment, live custom questions, heatmap. See [Next steps](#next-steps) and [PROGRESS.md](PROGRESS.md).  
 **Revised:** 22 November 2026, adopting API-only inference and an interactive client showcase.  
 **Sources:** [RESEARCH_UPDATE.md](RESEARCH_UPDATE.md), [DISCUSSION_NOTES.md](DISCUSSION_NOTES.md)
 
@@ -45,14 +45,14 @@ Do not start the next step until the current one is reviewed. Prefer plain, read
 | Language and dependencies | Python, `uv` |
 | Data | Parquet files from the pinned dataset revision |
 | Text baseline | BM25 (local) |
-| Dense text retrieval | One text embedding API; choose at step 7 |
-| Visual retrieval | Superlinked-hosted ColQwen3 4B multi-vector API; one single-vector multimodal embedding API as a cheaper comparison |
-| Reranking | One reranking API, optional per configuration |
+| Dense text retrieval | Qwen3-Embedding-8B via OpenRouter, one vector per page |
+| Visual retrieval | ColQwen3 4B multi-vector via Superlinked (MaxSim); Voyage multimodal 3.5 single-vector via OpenRouter |
+| Reranking | Cohere Rerank 5 Pro via OpenRouter on page text, top 50, optional per configuration |
 | Fusion | Reciprocal rank fusion (RRF) |
-| Answer generation | Claude API with page images and, where configured, text |
+| Answer generation | DeepSeek V4.1 Flash via OpenRouter on page text (page images tested: no gain); also grades answers |
 | Vector search | Exact search with NumPy over cached vectors; no vector database at this scale |
 | Backend | FastAPI |
-| Frontend | Lightweight React app |
+| Frontend | React 19 + Vite + TypeScript (`web/`) |
 | Tests | `pytest` |
 
 Before adopting any API, verify its current model names, pricing, rate limits, output format, and data-retention terms. Record those findings in `DISCUSSION_NOTES.md`.
@@ -63,7 +63,7 @@ Before adopting any API, verify its current model names, pricing, rate limits, o
 
 API-only inference, interactive client showcase, and step-by-step build are decided. Provider choices are made at the step that first needs them.
 
-### 2. Create the project skeleton
+### 2. Create the project skeleton — done
 
 ```text
 rag_01/
@@ -237,7 +237,10 @@ Keep gold labels, boxes, and reference answers out of the inference pipeline; th
 
 **Deliverable:** cited answers users can verify against original pages.
 
-### 12. Run the answer-reading experiment
+### 12. Run the answer-reading experiment — partly answered
+
+Text vs page images vs both, on 107 dev questions with DeepSeek: no measurable difference (see `PROGRESS.md`). The higher-resolution and region-OCR conditions below were not run. Original requirements follow.
+
 
 Keep retrieved pages and the answer model fixed:
 
@@ -264,7 +267,7 @@ FastAPI service that:
 
 **Deliverable:** documented, tested API.
 
-### 14. Build the interactive frontend — first version done
+### 14. Build the interactive frontend — done except heatmap
 
 `web/`: question list, lanes, lane editor, page viewer with evidence boxes, scoreboard. Heatmap, cited answers, and the curated gallery remain. Original requirements follow.
 
@@ -281,7 +284,10 @@ The showcase experience:
 
 **Deliverable:** usable demo against the local backend.
 
-### 15. Add client-facing pages
+### 15. Add client-facing pages — done
+
+Findings & guide, cost calculator, and privacy & deployment pages in the demo. Original requirements follow.
+
 
 - **Decision guide:** document type → recommended retrieval setup, backed by the measured breakdowns.
 - **Cost calculator:** page count and monthly queries → estimated indexing and query cost.
@@ -300,15 +306,40 @@ The showcase experience:
 
 **Deliverable:** live public demo, reproducible repository, results report.
 
-## Next milestone
+## Next steps
 
-Steps **2, 4, and 5**, built one at a time:
+In order. Steps 1–2 make the demo shareable; it costs nothing per visitor because everything is precomputed.
 
-```text
-Project skeleton → evaluation protocol → BM25 baseline
-```
+### 1. Deploy the benchmark demo publicly (step 16)
 
-This gives a real, measured baseline before spending money on APIs.
+- Choose hosting for the FastAPI backend and built frontend; serve the 185 MB of page images from object storage or a CDN.
+- Add a footer crediting the source reports (CC BY 4.0, European Commission) and linking to the dataset.
+- Make the build reproducible from a clean checkout: which artifacts are rebuilt (grid, answers, page images) versus shipped.
+- Add uptime monitoring and a simple health check.
+- Check in a real browser: phone widths (390 px), the page viewer, keyboard use.
+
+### 2. Package the results
+
+- Write `docs/RESULTS.md`: the final comparison table, answer results, method, denominators, confidence intervals, limitations, and reproduction commands.
+- Record a 30–45 second demo walkthrough of the showcase gallery, including the honest failure.
+
+### 3. Live custom questions (rest of step 13)
+
+- Use the fast setup (BM25 + Voyage + Cohere rerank, about 1.9 s retrieval) plus DeepSeek for answers.
+- Per-visitor rate limits, a daily spend cap with a clear "limit reached" message, and input length limits.
+- Decide what is logged: questions typed by visitors are third-party data.
+- Mark live results as unevaluated (no relevance labels exist for new questions).
+
+### 4. Match heatmap (rest of step 14)
+
+- Show which page regions ColQwen3 matched. First establish how the 747 `:compact` vectors map to image patches; if that mapping is not documented or recoverable, drop the feature.
+
+### Known limitations to keep visible
+
+- One corpus; each comparison changes both input type and model.
+- Answers are graded by the answering model's family (17 of 20 agreed with a hand check).
+- Precomputed answers exist for the 7 preset setups only.
+- The dense text API took 3.3 s per question, which rules it out for live use.
 
 ## Deferred work
 

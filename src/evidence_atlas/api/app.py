@@ -63,6 +63,17 @@ def config_summary(config, ceiling, answers=None):
     }
 
 
+def vector_storage(artifacts_dir, retrievers):
+    """Float32 bytes of stored vectors per page for each embedding retriever (BM25 keeps an inverted index instead)."""
+    sizes = {}
+    for name, (run, _) in retrievers.items():
+        path = artifacts_dir / "runs" / run / "run.json"
+        settings = json.loads(path.read_text())["settings"] if path.exists() else {}
+        if "dimensions" in settings:
+            sizes[name] = round(4 * settings["dimensions"] * settings.get("vectors_per_page_mean", 1))
+    return sizes
+
+
 def create_app(grid=None, data=None, pages_dir=None, answers=None):
     config = load_config()
     grid = grid or json.loads((config["artifacts_dir"] / "demo" / "grid.json").read_text())
@@ -79,13 +90,24 @@ def create_app(grid=None, data=None, pages_dir=None, answers=None):
     perfect = summarize(evaluate(perfect_rankings(data, heldout), data, heldout), samples=1)
     ceiling = {m: perfect[m]["mean"] for m in SUMMARY_METRICS}
     answer_stats = {c: answer_summary(answers.get(f"{c}#{ANSWER_MODE}", {}), heldout) for c in configs}
+    showcase = json.loads((ROOT / "configs" / "showcase.json").read_text())
+    for item in showcase:
+        unknown = [c for c in item["lanes"] if c not in configs]
+        if item["query_id"] not in questions or unknown:
+            raise ValueError(f"Showcase item Q{item['query_id']} refers to unknown question or lanes {unknown}")
+    storage = vector_storage(config["artifacts_dir"], grid["settings"]["retrievers"])
 
     app = FastAPI(title="Evidence Atlas demo API")
 
     @app.get("/api/meta")
     def meta():
         return {"retrievers": LABELS, "presets": PRESETS, "default_lanes": DEFAULT_LANES,
-                "settings": grid["settings"], "questions": len(questions), "configs": len(configs)}
+                "settings": grid["settings"], "questions": len(questions), "configs": len(configs),
+                "pages": len(data.pages), "vector_bytes_per_page": storage}
+
+    @app.get("/api/showcase")
+    def get_showcase():
+        return showcase
 
     @app.get("/api/configs")
     def list_configs():

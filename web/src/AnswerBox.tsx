@@ -7,12 +7,19 @@ type Props = {
 }
 
 const CITATION = /\[p(\d+)\]/g
+const BOLD = /\*\*(.+?)\*\*/g
 const VERDICT: Record<Answer['verdict'], { label: string; tone: string }> = {
   CORRECT: { label: 'Matches reference', tone: 'ok' },
   PARTIAL: { label: 'Partly matches reference', tone: 'partial' },
   INCORRECT: { label: 'Does not match reference', tone: 'miss' },
   ABSTAINED: { label: 'Declined: not enough evidence', tone: 'neutral' },
   UNPARSED: { label: 'Not graded', tone: 'neutral' },
+}
+
+// The model writes Markdown bold (**73%**); show it as bold rather than as asterisks.
+function withBold(text: string, key: number) {
+  const parts = text.split(BOLD)
+  return <span key={key}>{parts.map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part))}</span>
 }
 
 // The lane's generated answer, with each [p123] citation as a button that opens the cited page.
@@ -47,7 +54,7 @@ export function AnswerBox({ answer, grades, onOpenPage }: Props) {
               p{piece}
             </button>
           ) : (
-            <span key={i}>{piece}</span>
+            withBold(piece, i)
           ),
         )}
       </p>

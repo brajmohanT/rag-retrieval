@@ -2,7 +2,7 @@
 
 An interactive multimodal RAG showcase. It compares text, visual, and hybrid retrieval on the same questions over the [ViDoRe V3 HR](https://huggingface.co/datasets/vidore/vidore_v3_hr) corpus (14 EU labour-market reports, 1,110 pages), then shows the original page evidence behind each answer. All models run through hosted APIs.
 
-Status: early build. See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) and [docs/PROGRESS.md](docs/PROGRESS.md).
+Status: local demo complete for the 318 benchmark questions; public deployment and live custom questions are next. Results in [docs/PROGRESS.md](docs/PROGRESS.md); plan and next steps in [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
 
 ## Setup
 

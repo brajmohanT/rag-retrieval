@@ -1,0 +1,38 @@
+[
+  {
+    "query_id": 208,
+    "title": "Keyword search can't read “FR”",
+    "story": "The answer sits in a table that writes “FR” and “Nat.”, never “France” or “national”. Keyword search finds nothing and declines; text and visual search find the table, and the reranker lifts it to rank 2.",
+    "lanes": ["bm25|vw1", "dense|vw1", "colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  },
+  {
+    "query_id": 253,
+    "title": "Visual search goes straight to the table",
+    "story": "Keyword search ranks the answer page 11th and declines. Every embedding method ranks it first, and hybrid + rerank fills the top 3 with complete-answer pages.",
+    "lanes": ["bm25|vw1", "voyage|vw1", "colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  },
+  {
+    "query_id": 204,
+    "title": "The look-alike page trap",
+    "story": "Another page reports a similar statistic (the “anchored” AROP rate). Single methods and plain hybrid retrieve it and answer confidently wrong; only the reranker surfaces the right page, giving 16.5% and 16.2%.",
+    "lanes": ["voyage|vw1", "colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  },
+  {
+    "query_id": 187,
+    "title": "Evidence spread over two pages",
+    "story": "Corporate profits are on one page and the labour share on another. Visual and hybrid search retrieve both, so the answer can cite each figure to its own page.",
+    "lanes": ["bm25|vw1", "dense|vw1", "colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  },
+  {
+    "query_id": 64,
+    "title": "Two countries, two pages",
+    "story": "Greece and Portugal are reported on different pages. Keyword search finds neither and declines; hybrid + rerank retrieves both and answers with both exact figures.",
+    "lanes": ["bm25|vw1", "colqwen3|vw1", "bm25+voyage|vw1|cohere", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  },
+  {
+    "query_id": 293,
+    "title": "Honest failure: an ambiguous question",
+    "story": "Visual search finds the right page at rank 2, yet every answer is graded wrong: the model reads “percentage of vacancies” as the vacancy rate, while the reference means each sector's share of all vacancies. Retrieval is not the whole job.",
+    "lanes": ["bm25|vw1", "voyage|vw1", "colqwen3|vw1", "bm25+dense+voyage+colqwen3|vw1|cohere"]
+  }
+]
