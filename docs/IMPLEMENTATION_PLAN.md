@@ -207,7 +207,10 @@ RRF fusion (`atlas-fusion`) and reranking (`atlas-rerank`); final comparison tab
 
 **Deliverable:** the core result, including where visual or hybrid retrieval loses.
 
-### 10. Precompute the configuration grid
+### 10. Precompute the configuration grid — done
+
+`atlas-grid` writes `artifacts/demo/grid.json`; details in `PROGRESS.md`. Original requirements follow.
+
 
 So the demo is instant and free for benchmark questions:
 

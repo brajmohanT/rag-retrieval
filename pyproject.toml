@@ -22,6 +22,7 @@ atlas-dense = "evidence_atlas.retrieval.run_dense:main"
 atlas-visual = "evidence_atlas.retrieval.run_visual:main"
 atlas-fusion = "evidence_atlas.retrieval.run_fusion:main"
 atlas-rerank = "evidence_atlas.retrieval.run_rerank:main"
+atlas-grid = "evidence_atlas.demo.grid:main"
 atlas-eval = "evidence_atlas.evaluation.report:main"
 atlas-smoke = "evidence_atlas.providers.smoke:main"
 

@@ -139,3 +139,13 @@ Held-out (n=211), each method frozen before held-out evaluation:
 - Fusion + rerank vs fusion: nDCG@10 +0.079 [+0.051, +0.107]; Complete@5 +0.095 [+0.057, +0.133]; both significant.
 - Latency is first-stage p50 plus rerank request p50 (1.3 s); the fusion's slowest member is dense text through the API.
 - Total API spend for the project so far: $3.47.
+
+## Demo configuration grid (step 10)
+
+- Added `demo/grid.py` and `atlas-grid` (`--dry-run` estimates new reranking cost). Builds `artifacts/demo/grid.json` (3.8 MB): 66 configurations = any non-empty subset of the four retrievers (RRF, k = 10), visual weight 0.5 / 1 / 2 when text and image retrievers are mixed, Cohere rerank of the top 50 on or off.
+- Stored per configuration: top 20 pages for all 318 questions, per-question nDCG@10 / Hit@5 / Recall@5 / Complete@5, held-out summary with 95% intervals and type breakdowns, index cost, cost per 1,000 questions, estimated p50 latency. Also stored: questions, reference answers, partitions, judged pages, and page document/number.
+- Reproduction check: the grid's BM25, ColQwen3, fusion, and fusion + Cohere configurations match the saved runs exactly (identical rankings and held-out nDCG@10).
+- New reranking cost $0.82 (19,318 uncached pairs). Total API spend so far: $4.36.
+- Finding, consistent on dev and held-out: with Cohere reranking, BM25 + Voyage matches the four-way fusion (dev nDCG@10 0.730 vs 0.728; held-out 0.733 vs 0.731) at an estimated 1.9 s instead of 4.7 s p50. Without reranking, the first-stage choice matters (BM25 + Voyage alone: dev 0.584).
+- Held-out scoreboards cover 66 configurations explored, not tuned; picking the best of them on held-out would overfit. Choices are made on dev.
+- 53 tests pass.

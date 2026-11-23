@@ -25,6 +25,7 @@ uv run atlas-dense                   # dense text retrieval via API (cached afte
 uv run atlas-visual                  # visual retrieval from page images: voyage, colqwen3, or both
 uv run atlas-fusion                  # tune rank fusion on dev, evaluate on held-out (no API cost)
 uv run atlas-rerank cohere           # rerank the fusion shortlist on dev; --partition all for the final run
+uv run atlas-grid                    # precompute all 66 demo configurations (--dry-run to estimate cost)
 uv run atlas-eval artifacts/runs/X   # (re)evaluate any saved run
 uv run atlas-smoke                   # one cached call to each API provider (needs .env keys)
 ```
@@ -39,6 +40,7 @@ src/evidence_atlas/ project code
   evaluation/       partitions, metrics, run reports
   retrieval/        retrievers and the shared run format
   providers/        API clients, response cache, call log
+  demo/             precomputed configuration grid for the demo
 tests/
 docs/               plan, progress, research, discussion notes
 data/, artifacts/   local only (ignored by Git)
