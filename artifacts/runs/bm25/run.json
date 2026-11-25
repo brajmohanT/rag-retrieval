@@ -1,0 +1,21 @@
+{
+  "name": "bm25",
+  "method": "bm25",
+  "settings": {
+    "k1": 1.2,
+    "b": 0.75,
+    "text": "dataset markdown",
+    "depth": 100,
+    "tokenizer": "lowercase, words and numbers, English stopwords removed, Snowball stem"
+  },
+  "dataset_revision": "0cdf0979f2c5a0fd3e335e6373b9da48a9fe3bc3",
+  "index_seconds": 2.6650657079990197,
+  "vocabulary_size": 18028,
+  "query_latency": {
+    "p50_ms": 0.5946659985056613,
+    "p95_ms": 0.9379580005770549,
+    "n": 318
+  },
+  "cost_usd": 0.0,
+  "created_at": "2026-11-22T17:40:29+00:00"
+}

@@ -1,6 +1,30 @@
-# Downloaded datasets and generated outputs (indexes, rankings, viewers)
-/data/
-/artifacts/
+# Downloaded dataset (fetch with the command in AGENTS.md)
+/data
+
+# Generated outputs. Everything under artifacts/ is ignored except the small
+# precomputed files the demo server needs (grid, answers, page sizes, run settings).
+# The API response cache, call logs, inspection viewers and page images stay local.
+/artifacts/*
+!/artifacts/demo/
+/artifacts/demo/*
+!/artifacts/demo/grid.json
+!/artifacts/demo/pages/
+/artifacts/demo/pages/*
+!/artifacts/demo/pages/sizes.json
+!/artifacts/answers/
+/artifacts/answers/*
+!/artifacts/answers/answers.json
+!/artifacts/runs/
+/artifacts/runs/*
+!/artifacts/runs/bm25/
+!/artifacts/runs/dense-qwen3-embedding-8b/
+!/artifacts/runs/visual-voyage-multimodal-3.5/
+!/artifacts/runs/visual-colqwen3-4b/
+/artifacts/runs/*/*
+!/artifacts/runs/*/run.json
+
+# Static export of the demo (uv run atlas-export-static)
+/site/
 
 # Secrets: API keys live only in .env
 .env
