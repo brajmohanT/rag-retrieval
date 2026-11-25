@@ -3,6 +3,7 @@ name = "evidence-atlas"
 version = "0.1.0"
 description = "Compare text, visual, and hybrid retrieval on ViDoRe V3 HR and show the evidence behind each answer."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "fastapi>=0.115",

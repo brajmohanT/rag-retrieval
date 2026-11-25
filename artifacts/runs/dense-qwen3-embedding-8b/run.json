@@ -1,0 +1,29 @@
+{
+  "name": "dense-qwen3-embedding-8b",
+  "method": "dense",
+  "settings": {
+    "model": "qwen/qwen3-embedding-8b",
+    "provider": "openrouter",
+    "unit": "whole page markdown",
+    "query_instruction": "Given a question about EU labour-market reports, retrieve the report pages that answer it",
+    "dimensions": 4096,
+    "pages_embedded": 1098,
+    "depth": 100
+  },
+  "dataset_revision": "0cdf0979f2c5a0fd3e335e6373b9da48a9fe3bc3",
+  "index_seconds": 405.059,
+  "query_latency": {
+    "p50_ms": 3313.0,
+    "p95_ms": 15912.0,
+    "n": 318
+  },
+  "search_latency": {
+    "p50_ms": 0.24562500004776666,
+    "p95_ms": 0.2728339999293894,
+    "n": 318
+  },
+  "index_cost_usd": 0.01135425,
+  "query_cost_per_1k_usd": 0.0005068238993710692,
+  "cost_usd": 0.01151542,
+  "created_at": "2026-11-23T09:14:31+00:00"
+}
