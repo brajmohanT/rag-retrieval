@@ -37,3 +37,17 @@ __pycache__/
 # Local agent tooling, not part of the project
 /.agents/
 /.hallmark/
+
+# Private notes and internal planning docs, kept local only
+/docs/me.md
+/docs/DISCUSSION_NOTES.md
+/docs/FOUNDATION.md
+/docs/RESEARCH_UPDATE.md
+/docs/SOLUTION.html
+/docs/base.css
+/docs/POST.md
+/docs/X_POST.md
+/docs/Technical_Ques.md
+/docs/post.html
+/docs/x_images/
+/.claude/

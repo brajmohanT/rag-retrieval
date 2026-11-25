@@ -2,7 +2,6 @@
 
 **Status (23 November 2026):** Steps 1–11 and 15 done; local demo complete for benchmark questions. Remaining: deployment, live custom questions, heatmap. See [Next steps](#next-steps) and [PROGRESS.md](PROGRESS.md).  
 **Revised:** 22 November 2026, adopting API-only inference and an interactive client showcase.  
-**Sources:** [RESEARCH_UPDATE.md](RESEARCH_UPDATE.md), [DISCUSSION_NOTES.md](DISCUSSION_NOTES.md)
 
 ## Goal and audience
 
@@ -55,7 +54,7 @@ Do not start the next step until the current one is reviewed. Prefer plain, read
 | Frontend | React 19 + Vite + TypeScript (`web/`) |
 | Tests | `pytest` |
 
-Before adopting any API, verify its current model names, pricing, rate limits, output format, and data-retention terms. Record those findings in `DISCUSSION_NOTES.md`.
+Before adopting any API, verify its current model names, pricing, rate limits, output format, and data-retention terms.
 
 ## Steps
 
@@ -291,7 +290,7 @@ Findings & guide, cost calculator, and privacy & deployment pages in the demo. O
 
 - **Decision guide:** document type → recommended retrieval setup, backed by the measured breakdowns.
 - **Cost calculator:** page count and monthly queries → estimated indexing and query cost.
-- **Deployment and privacy note:** this demo uses public APIs; client deployments can run in a private cloud or on-premises. See `DISCUSSION_NOTES.md`.
+- **Deployment and privacy note:** this demo uses public APIs; client deployments can run in a private cloud or on-premises.
 
 **Deliverable:** pages a prospective client can act on.
 
