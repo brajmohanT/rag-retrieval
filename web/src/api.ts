@@ -85,20 +85,41 @@ export type Page = {
   image: string
 }
 
+// Built with VITE_STATIC=1 (uv run atlas-export-static), the site reads the exported JSON files instead of
+// calling the backend. All URLs are relative to the build's base, so the static site works under a sub-path.
+const STATIC = import.meta.env.VITE_STATIC === '1'
+
+export const asset = (path: string) => import.meta.env.BASE_URL + path.replace(/^\//, '')
+export const thumbUrl = (pageId: number) => asset(`page-images/${pageId}-thumb.webp`)
+
 async function get<T>(path: string): Promise<T> {
-  const response = await fetch(path)
-  if (!response.ok) throw new Error(`${path}: ${response.status} ${await response.text()}`)
+  const url = asset(STATIC ? `${path}.json` : path)
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`${url}: ${response.status} ${await response.text()}`)
   return response.json()
 }
 
+// A static question file holds lanes for every configuration; keep the requested ones, in order.
+async function staticQuestion(id: number, lanes: string[]): Promise<QuestionDetail> {
+  const detail = await get<QuestionDetail>(`api/questions/${id}`)
+  const wanted = lanes.length ? lanes : (await api.meta()).default_lanes
+  const byConfig = new Map(detail.lanes.map((lane) => [lane.config, lane]))
+  const unknown = wanted.filter((c) => !byConfig.has(c))
+  if (unknown.length) throw new Error(`Unknown configuration(s): ${unknown.join(', ')}`)
+  return { ...detail, lanes: wanted.map((c) => byConfig.get(c)!) }
+}
+
 export const api = {
-  meta: () => get<Meta>('/api/meta'),
-  configs: () => get<Config[]>('/api/configs'),
-  questions: () => get<QuestionSummary[]>('/api/questions'),
+  meta: () => get<Meta>('api/meta'),
+  configs: () => get<Config[]>('api/configs'),
+  questions: () => get<QuestionSummary[]>('api/questions'),
   question: (id: number, lanes: string[]) =>
-    get<QuestionDetail>(`/api/questions/${id}?configs=${lanes.map(encodeURIComponent).join(',')}`),
-  page: (id: number) => get<Page>(`/api/pages/${id}`),
-  showcase: () => get<ShowcaseItem[]>('/api/showcase'),
+    STATIC
+      ? staticQuestion(id, lanes)
+      : get<QuestionDetail>(`api/questions/${id}?configs=${lanes.map(encodeURIComponent).join(',')}`),
+  page: (id: number) =>
+    get<Page>(`api/pages/${id}`).then((p) => ({ ...p, thumb: asset(p.thumb), image: asset(p.image) })),
+  showcase: () => get<ShowcaseItem[]>('api/showcase'),
 }
 
 // Configuration IDs look like "bm25+voyage|vw0.5|cohere".

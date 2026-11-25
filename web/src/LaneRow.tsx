@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { KIND, laneName, type Config, type Lane, type Meta } from './api'
+import { KIND, laneName, thumbUrl, type Config, type Lane, type Meta } from './api'
 import { AnswerBox } from './AnswerBox'
 import { LaneEditor } from './LaneEditor'
 import { evidenceLine } from './words'
@@ -59,7 +59,7 @@ export function LaneRow({ lane, config, configs, meta, topK, grades, onOpenPage,
                 onClick={() => onOpenPage(p.page_id)}
                 aria-label={`Rank ${p.rank}, page ${p.page_id}${p.grade ? `, ${GRADE[p.grade]}` : ''}`}
               >
-                <img src={`/page-images/${p.page_id}-thumb.webp`} alt="" loading="lazy" />
+                <img src={thumbUrl(p.page_id)} alt="" loading="lazy" />
                 <span className="thumb-rank">{p.rank}</span>
                 {p.grade > 0 && <span className="thumb-hit" aria-hidden="true">✓</span>}
               </button>
