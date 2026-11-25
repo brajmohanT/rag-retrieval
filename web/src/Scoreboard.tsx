@@ -1,71 +1,84 @@
-import { laneName, money, pct, seconds, type Config, type Meta } from './api'
+import { useState } from 'react'
+import { laneName, money, pct, seconds, type Config } from './api'
 
-type Props = { lanes: Config[]; meta: Meta }
+type Props = { lanes: Config[] }
 
+const TYPES = ['Text', 'Table', 'Chart', 'Infographic']
 
-// Held-out results for the setups in the lanes: quality, cost, and speed side by side.
-export function Scoreboard({ lanes, meta }: Props) {
+// Held-out results: overall metrics, or nDCG@10 split by the content type holding the evidence.
+export function Scoreboard({ lanes }: Props) {
+  const [byType, setByType] = useState(false)
   if (!lanes.length) return null
-  const best = Math.max(...lanes.map((c) => c.heldout['ndcg@10'].mean))
   const ceiling = lanes[0].ceiling
+  const best = (f: (c: Config) => number) => Math.max(...lanes.map(f))
+  // Bolds the best value in its column, and any within 0.005 of it (ties for practical purposes).
+  const cell = (key: string, f: (c: Config) => number, c: Config, text: string) => (
+    <td key={key} className={lanes.length > 1 && best(f) - f(c) < 0.005 ? 'best-cell' : ''}>
+      {text}
+    </td>
+  )
+
+  const ndcg = (c: Config) => c.heldout['ndcg@10'].mean
+  const recall = (c: Config) => c.heldout['recall@5'].mean
+  const complete = (c: Config) => c.heldout['complete@5'].mean
+  const correct = (c: Config) => c.answers?.correct ?? -1
+  const typed = (t: string) => (c: Config) => c.heldout_by_content_type[t]?.['ndcg@10'] ?? -1
+
   return (
-    <section className="scoreboard" aria-labelledby="scoreboard-title">
-      <h2 id="scoreboard-title">How each setup does across all 211 held-out questions</h2>
+    <div className="scoreboard">
+      <div className="segmented" role="group" aria-label="Table view">
+        <button className={byType ? '' : 'on'} aria-pressed={!byType} onClick={() => setByType(false)}>
+          Overall
+        </button>
+        <button className={byType ? 'on' : ''} aria-pressed={byType} onClick={() => setByType(true)}>
+          nDCG@10 by content type
+        </button>
+      </div>
       <div className="table-wrap">
         <table>
           <thead>
-            <tr>
-              <th scope="col">Setup</th>
-              <th scope="col">nDCG@10</th>
-              <th scope="col">Right page in top 5</th>
-              <th scope="col">Enough to answer in top 5</th>
-              <th scope="col">Tables nDCG</th>
-              <th scope="col">Answers matching reference</th>
-              <th scope="col">Cost / 1,000 questions</th>
-              <th scope="col">Latency (p50)</th>
-            </tr>
+            {byType ? (
+              <tr>
+                <th scope="col">Setup</th>
+                {TYPES.map((t) => (
+                  <th key={t} scope="col">
+                    {t} <span className="muted">n={lanes[0].heldout_by_content_type[t]?.n}</span>
+                  </th>
+                ))}
+              </tr>
+            ) : (
+              <tr>
+                <th scope="col">Setup</th>
+                <th scope="col">nDCG@10</th>
+                <th scope="col">Recall@5</th>
+                <th scope="col">Complete@5 <span className="muted">max {pct(ceiling['complete@5'])}</span></th>
+                <th scope="col">Answer acc.</th>
+                <th scope="col">$ / 1k q</th>
+                <th scope="col">p50</th>
+              </tr>
+            )}
           </thead>
           <tbody>
-            {lanes.map((c) => {
-              const ndcg = c.heldout['ndcg@10']
-              return (
-                <tr key={c.id} className={ndcg.mean === best ? 'best' : ''}>
-                  <th scope="row">{laneName(c, meta.presets)}</th>
-                  <td>
-                    <span className="bar" style={{ ['--w' as string]: pct(ndcg.mean) }} />
-                    {ndcg.mean.toFixed(3)}
-                    <span className="muted small"> ±{((ndcg.high - ndcg.low) / 2).toFixed(3)}</span>
-                  </td>
-                  <td>{pct(c.heldout['hit@5'].mean)}</td>
-                  <td>
-                    {pct(c.heldout['complete@5'].mean)}
-                    <span className="muted small"> of {pct(ceiling['complete@5'])} possible</span>
-                  </td>
-                  <td>{c.heldout_by_content_type.Table?.['ndcg@10'].toFixed(3) ?? '–'}</td>
-                  <td>
-                    {c.answers ? (
-                      <>
-                        {pct(c.answers.correct)}
-                        <span className="muted small"> +{pct(c.answers.partial)} partly</span>
-                      </>
-                    ) : (
-                      '–'
-                    )}
-                  </td>
-                  <td>{money(c.query_cost_per_1k_usd)}</td>
-                  <td>{seconds(c.latency_p50_ms)}</td>
-                </tr>
-              )
-            })}
+            {lanes.map((c) => (
+              <tr key={c.id}>
+                <th scope="row">{laneName(c)}</th>
+                {byType ? (
+                  TYPES.map((t) => cell(t, typed(t), c, typed(t)(c).toFixed(3)))
+                ) : (
+                  <>
+                    {cell('ndcg', ndcg, c, `${ndcg(c).toFixed(3)} ±${((c.heldout['ndcg@10'].high - c.heldout['ndcg@10'].low) / 2).toFixed(3)}`)}
+                    {cell('recall', recall, c, recall(c).toFixed(3))}
+                    {cell('complete', complete, c, pct(complete(c)))}
+                    {cell('correct', correct, c, c.answers ? pct(c.answers.correct) : '–')}
+                    <td>{money(c.query_cost_per_1k_usd)}</td>
+                    <td>{seconds(c.latency_p50_ms)}</td>
+                  </>
+                )}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      <p className="small muted">
-        ± is half the 95% bootstrap interval. “Enough to answer”: a complete-answer page, or every partial page, is in the top
-        5; some questions have more evidence pages than fit, hence the ceiling. Latency is the API-call median; reranking adds to
-        retrieval time. Answers are graded against the dataset's reference answers by the same model (DeepSeek), so treat them as
-        indicative; – means no precomputed answers for that setup.
-      </p>
-    </section>
+    </div>
   )
 }

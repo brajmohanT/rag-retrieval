@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RETRIEVER_ORDER, VISUAL, configId, type Config, type Meta } from './api'
+import { RETRIEVER_ORDER, SHORT, VISUAL, configId, laneName, type Config, type Meta } from './api'
 
 type Props = {
   current: Config
@@ -28,7 +28,7 @@ export function LaneEditor({ current, configs, meta, onChange, onClose }: Props)
           <option value="">Choose a preset…</option>
           {meta.presets.map((p) => (
             <option key={p.config} value={p.config}>
-              {p.name}
+              {laneName(configs.get(p.config)!)}
             </option>
           ))}
         </select>
@@ -38,7 +38,7 @@ export function LaneEditor({ current, configs, meta, onChange, onClose }: Props)
         {RETRIEVER_ORDER.map((m) => (
           <label key={m} className="check">
             <input type="checkbox" checked={members.includes(m)} onChange={() => toggle(m)} />
-            {meta.retrievers[m]}
+            {SHORT[m]}
           </label>
         ))}
       </fieldset>
@@ -54,7 +54,7 @@ export function LaneEditor({ current, configs, meta, onChange, onClose }: Props)
       )}
       <label className="check">
         <input type="checkbox" checked={rerank} onChange={(e) => setRerank(e.target.checked)} />
-        Rerank top 50 (Cohere Rerank 5)
+        Rerank top 50 (Cohere)
       </label>
       <div className="row">
         <button className="primary" disabled={!valid} onClick={() => (onChange(id!), onClose())}>

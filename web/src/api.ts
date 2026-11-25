@@ -111,15 +111,20 @@ export function configId(members: string[], visualWeight: number, rerank: boolea
   return `${ordered.join('+')}|vw${mixed ? visualWeight : 1}${rerank ? '|cohere' : ''}`
 }
 
-const SHORT: Record<string, string> = { bm25: 'BM25', dense: 'Text emb.', voyage: 'Voyage', colqwen3: 'ColQwen3' }
+export const SHORT: Record<string, string> = { bm25: 'BM25', dense: 'Qwen3-Emb-8B', voyage: 'Voyage-mm-3.5', colqwen3: 'ColQwen3-4B' }
+export const KIND: Record<string, string> = {
+  bm25: 'text · lexical',
+  dense: 'text · dense',
+  voyage: 'image · single-vector',
+  colqwen3: 'image · multi-vector',
+}
 
-export function laneName(config: Config, presets: Meta['presets']): string {
-  const preset = presets.find((p) => p.config === config.id)
-  if (preset) return preset.name
-  const parts = [config.members.map((m) => SHORT[m]).join(' + ')]
-  if (config.visual_weight !== 1) parts.push(`visual ×${config.visual_weight}`)
-  if (config.rerank) parts.push('rerank')
-  return parts.join(' · ')
+// "BM25", "RRF(BM25, Voyage-mm-3.5) → rerank", "RRF(all 4, visual ×2)".
+export function laneName(config: Config): string {
+  if (config.members.length === 1) return SHORT[config.members[0]]
+  const inner = config.members.length === 4 ? ['all 4'] : config.members.map((m) => SHORT[m])
+  if (config.visual_weight !== 1) inner.push(`visual ×${config.visual_weight}`)
+  return `RRF(${inner.join(', ')})${config.rerank ? ' → rerank' : ''}`
 }
 
 export const pct = (x: number) => `${Math.round(x * 100)}%`

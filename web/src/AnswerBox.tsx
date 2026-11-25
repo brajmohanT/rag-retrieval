@@ -1,4 +1,5 @@
 import type { Answer } from './api'
+import { VERDICT } from './words'
 
 type Props = {
   answer: Answer | null
@@ -8,13 +9,6 @@ type Props = {
 
 const CITATION = /\[p(\d+)\]/g
 const BOLD = /\*\*(.+?)\*\*/g
-const VERDICT: Record<Answer['verdict'], { label: string; tone: string }> = {
-  CORRECT: { label: 'Matches reference', tone: 'ok' },
-  PARTIAL: { label: 'Partly matches reference', tone: 'partial' },
-  INCORRECT: { label: 'Does not match reference', tone: 'miss' },
-  ABSTAINED: { label: 'Declined: not enough evidence', tone: 'neutral' },
-  UNPARSED: { label: 'Not graded', tone: 'neutral' },
-}
 
 // The model writes Markdown bold (**73%**); show it as bold rather than as asterisks.
 function withBold(text: string, key: number) {
@@ -25,7 +19,7 @@ function withBold(text: string, key: number) {
 // The lane's generated answer, with each [p123] citation as a button that opens the cited page.
 export function AnswerBox({ answer, grades, onOpenPage }: Props) {
   if (!answer) {
-    return <p className="answer-box muted small">Answers are precomputed for the preset setups only.</p>
+    return <p className="answer-none">No answer generated for this setup.</p>
   }
   const pieces: (string | number)[] = []
   let last = 0
@@ -38,18 +32,15 @@ export function AnswerBox({ answer, grades, onOpenPage }: Props) {
 
   return (
     <div className="answer-box">
-      <p className="small muted">
-        Answer from the top 5 pages (DeepSeek V4.1 Flash, page text)
-        <span className={`badge ${verdict.tone}`}>{verdict.label}</span>
-      </p>
-      <p>
+      <p className={`verdict ${verdict.tone}`}>{verdict.label}</p>
+      <p className="answer-text">
         {pieces.map((piece, i) =>
           typeof piece === 'number' ? (
             <button
               key={i}
-              className={`cite g${grades.get(piece) ?? 0}`}
+              className={`cite${grades.get(piece) ? ' hit' : ''}`}
               onClick={() => onOpenPage(piece)}
-              title={grades.get(piece) ? 'Cites a page judged relevant' : 'Cites a page not judged relevant'}
+              title={grades.get(piece) ? 'Cites a page marked as evidence' : 'Cites a page not marked as evidence'}
             >
               p{piece}
             </button>
