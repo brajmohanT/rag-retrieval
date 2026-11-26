@@ -50,6 +50,9 @@ export function Explore({ questions, showcase, selected, configs, meta, go }: Pr
     <div className="explore">
       <QuestionList questions={questions} selected={selected} onSelect={(id) => go(`explore/q=${id}`)} />
       <main className="explore-main">
+        <p className="recorded-note">
+          Recorded results · {meta.questions} benchmark questions · {meta.configs} setups
+        </p>
         {error && <p className="error">Could not load this question: {error}</p>}
         {detail && (
           <Comparison

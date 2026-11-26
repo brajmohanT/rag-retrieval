@@ -51,3 +51,10 @@ __pycache__/
 /docs/post.html
 /docs/x_images/
 /.claude/
+
+# Cloudflare Wrangler local state and secrets
+/.wrangler/
+.dev.vars*
+
+# macOS
+.DS_Store

@@ -72,6 +72,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .hero { text-align: center; padding: clamp(4rem, 12vw, 8.5rem) 0 1rem; display: grid; justify-items: center; }
 .hero h1 { font-size: clamp(3rem, 1.8rem + 6vw, 6.5rem); line-height: 0.95; letter-spacing: -0.025em; }
 .hero-sub { max-width: 46ch; margin-top: 1.25rem; color: var(--ink-2); font-size: 1rem; }
+.hero-note { max-width: 52ch; margin-top: 0.6rem; color: var(--muted); font-size: 0.85rem; }
+.recorded-note { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.8rem; }
 .facts { list-style: none; margin: 2.25rem 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; }
 .facts li { display: grid; gap: 0.15rem; text-align: left; padding: 0 1.5rem; font-size: 0.9rem; }
 .facts li + li { border-left: 1px solid var(--rule-strong); }

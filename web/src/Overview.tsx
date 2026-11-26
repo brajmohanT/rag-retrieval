@@ -36,6 +36,10 @@ export function Overview({ configs, meta, showcase }: Props) {
           </a>
           .
         </p>
+        <p className="hero-note">
+          Results recorded from real API runs over the benchmark's {meta.questions} questions. You can explore every
+          question and setup; typing your own question isn't supported yet.
+        </p>
         <ul className="facts">
           <li>
             <b>Visual beats text.</b>

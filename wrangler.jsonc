@@ -1,0 +1,10 @@
+{
+  "name": "retrieval-in-rag",
+  "compatibility_date": "2026-11-23",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "site"
+  }
+}
